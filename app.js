@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken'); // 新增jwt库
 const userRoutes = require('./routes/userRoutes');
 const loginRoutes = require('./routes/loginRoutes');
 const clientRoutes = require('./routes/clientRoutes');
+const equipRoutes = require('./routes/equipRoutes');
+const battleRoutes = require('./routes/battleRoutes');
 
 // token验证中间件
 function authenticateToken(req, res, next) {
@@ -57,6 +59,8 @@ app.use(authenticateToken);
 app.use(userRoutes);
 app.use(loginRoutes);
 app.use(clientRoutes);
+app.use(equipRoutes);
+app.use(battleRoutes);
  
 app.get('/index.html', function (req, res) {
     res.sendFile( __dirname + "/" + "index.html" );

@@ -9,29 +9,33 @@ router.post('/user/getClientData', async (req, res) => {
 
 // 获取用户数据
 router.post('/user/playerInfo', async (req, res) => {
+  const user = req.user.toObject();
+
+  // FIXED: 修改用户数据，用于测试====
+  user.ChapterID = 3;
+  // ===============================
+
   res.json(formatResponse({
     info: {
-      ...req.user.toObject(),
+      ...user,
       ServTimestap: new Date().getTime(), // 服务器时间戳
     },
   }));
 });
 
 // 保存用户数据
-router.post('/set_cloud_user_data', async (req, res) => {
-  const {userid, key, value } = req.body;
+router.post('/user/savePlayerInfo', async (req, res) => {
+  const user = req.user;
   try {
-    let user = await User.findOne({ userId: userid });
-    if (!user) {
-      user = new User({ userId: userid });
+    for (const key in req.body) {
+      if (key in user && key !== '_id' && key !== '__v') { // 防止更新敏感字段
+        user[key] = req.body[key];
+      }
     }
-    user[key] = value;
-    user.version += 1;
     await user.save();
-    console.log("cerat user:" + user);
-    res.json({ errcode: 0, message: 'User data saved successfully' });
+    res.json(formatResponse({}));
   } catch (err) {
-    res.status(500).json({ errcode: 1, message: 'Server error' });
+    res.status(500).json({ errcode: 1, message: 'Server error' + err });
   }
 });
 
