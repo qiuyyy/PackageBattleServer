@@ -1,23 +1,138 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
-const { formatResponse, getSercetKey } = require('../tools/CustomUtils');
-const jwt = require('jsonwebtoken'); // 新增jwt库
+const { formatResponse, saveUserItem } = require('../tools/CustomUtils');
+const GameConfig = require('../tools/GameConfig');
 
 // 开始战斗
 router.post('/battle/sendMissBegin', async (req, res) => {
-    res.json(formatResponse({}));
+    // 保存进行中战斗信息
+    const user = req.user;
+    const battleId = Math.floor(100000 + Math.random() * 900000); // 生成六位随机数
+    // 保存战斗信息
+    user.battleInfo = {
+        battleid: battleId,
+        ...req.body
+    }; 
+    // 减少体力
+    if (!saveUserItem(user, GameConfig.ItemId.Power, - GameConfig.battlePowerCost)) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+    }
+    await user.save();
+    res.json(formatResponse({
+        battleid: battleId,
+        kv: {
+            Power: user.Power, // 体力
+            PowerRecoveryStarTime: user.Power < user.MaxPower ? new Date().getTime() : 0, 
+        },
+        init_battle_coin: 0, // 初始战斗币
+    }));
 });
 
-// 战斗结果
+// 战斗结束
 router.post('/battle/sendMissResult', async (req, res) => {
-    res.json(formatResponse({}));
+    const user = req.user;
+    if (req.body.battleid == user.battleInfo.battleid) { // 验证战斗ID是否一致
+        if (user.battleInfo.battle_type == 1) { // 普通关卡
+            if (req.body.Pass) { // 战斗成功
+                // 保存战斗信息
+                user.ChapterID = Math.max(user.battleInfo.configId + 1, user.ChapterID); // 保存通关章节
+                user.ChapterWaveId = 0; // 保存通关波次
+                // 保存奖励物品
+                user.battleInfo.reward.forEach(item => {
+                    saveUserItem(user, item[0], item[1]);  
+                })
+            } else { // 战斗失败
+                // 保存战斗信息
+                user.ChapterWaveId = req.body.ChapterWaveId; // 保存通关波次
+            }
+            let reward = user.battleInfo.reward; // 奖励物品
+            await user.save();
+            res.json(formatResponse({
+                items: reward,
+                kv: {
+                    ChapterID: user.ChapterID,
+                    ChapterWaveId: user.ChapterWaveId,
+                    Exp: user.Exp, // 经验
+                    Level: user.Level, // 等级
+                    Power: user.Power, // 体力
+                    ChapterMaxSurvivalTime: 0,
+                    PowerRecoveryStarTime: 0, 
+                }
+            }));
+        } else if (req.body.battle_type == 3){ // 精英关卡
+            if (req.body.Pass) { // 战斗成功
+                // 保存战斗信息
+                let mission = user.api.missionChallengeInfo.find(item => item.task_id == req.body.configId); // 查找精英关卡信息
+                if (!mission) { // 不存在则创建
+                    user.api.missionChallengeInfo.push({ task_id: req.body.configId, draw: 0, num: 1 }); // 保存精英关卡信息
+                } else { // 存在则增加数量
+                    mission.num += 1; // 增加数量
+                }
+            }
+            let reward = user.battleInfo.reward; // 奖励物品
+            await user.save();
+            res.json(formatResponse({
+                items: reward,
+                kv: {
+                    ChapterID: user.ChapterID,
+                    ChapterWaveId: user.ChapterWaveId,
+                    Exp: user.Exp, // 经验
+                    Level: user.Level, // 等级
+                    Power: user.Power, // 体力
+                    ChapterMaxSurvivalTime: 0,
+                    PowerRecoveryStarTime: 0, 
+                },
+                missionChallengeInfo: user.api.missionChallengeInfo,
+            }));
+        }
+    } else {
+        res.json(formatResponse({}, GameConfig.NetCode.FAIL, "battleid not match"));
+    }
 });
 
-// 领取奖励
+// 获取宝箱奖励
 router.post('/battle/drawMissionBoxAny', async (req, res) => {
-    
-    res.json(formatResponse({}));
+    const user = req.user;
+    // 保存奖励物品
+    req.body.MainReward.forEach(item => {
+        saveUserItem(user, item[0], item[1]);
+    })
+    // 保存领取信息
+    user.DrawChapterBoxAny = user.DrawChapterBoxAny == "" ? user.DrawChapterBoxAny + req.body.ID : user.DrawChapterBoxAny + "," + req.body.ID;
+    await user.save();
+    res.json(formatResponse({
+        items: req.body.MainReward,
+        kv: {
+            // ChapterID: req.body.ChapterId,
+            ChapterID: 0,
+            ChapterMaxSurvivalTime: 0,
+            DrawChapterBoxAny: user.DrawChapterBoxAny,
+        }
+    }));
 });
+
+// 获取精英宝箱奖励
+router.post('/battle/drawchallenge', async (req, res) => {
+    const user = req.user;
+    // 保存奖励物品
+    req.body.Reward.forEach(item => {
+        saveUserItem(user, item[0], item[1]);
+    })
+    // 保存领取信息
+    let challengeInfo = user.api.missionChallengeInfo.find(item => item.task_id == req.body.ChallengeID);
+    if (!challengeInfo) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "nothing to draw"))
+    } else {
+        if (challengeInfo.draw == 1) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "already draw"))
+        } else {
+            challengeInfo.draw = 1; // 标记为已领取
+        }
+    }
+    await user.save();
+    res.json(formatResponse({
+        items: req.body.Reward,
+    }));
+})
 
 module.exports = router;

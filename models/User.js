@@ -2,6 +2,47 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { getSercetKey } = require('../tools/CustomUtils');
 
+// 背包物品
+const bagInfoSchema = new mongoose.Schema({
+  Itemid: { type: Number, required: true }, // 物品ID
+  Num: { type: Number, required: true }, // 物品数量 
+})
+
+// 每日商品
+const dailyStoreSchema = new mongoose.Schema({
+  ItemId: { type: Number, required: true }, // 物品ID
+  Count: { type: Number, required: true }, // 数量
+  Discount: { type: Number, required: true }, // 折扣
+  Left: { type: Number, required: true }, // 剩余
+  Price: { type: Number, required: true }, // 价格
+  PriceType: { type: Number, required: true }, // 价格类型
+  PriceType2: { type: String, required: true }, // 价格类型2
+  Time: { type: Number, required: true }, // 时间
+  Num: { type: Number, required: true }, // 物品数量
+  BuyNum: { type: Number, required: true }, // 购买数量 
+})
+
+// 精英关卡信息
+const missionChallengeInfoSchema = new mongoose.Schema({
+  task_id: { type: Number, required: true }, // 关卡ID
+  draw: { type: Number, required: true }, // 已领取 0-未领取 1-已领取
+  num: { type: Number, required: true }, // 可领取数量
+})
+
+const apiSchema = new mongoose.Schema({
+  dailyStore: { type: [dailyStoreSchema], default: [] }, // 每日商品 
+  bagInfo: { type: [bagInfoSchema], default: [] }, // 背包
+  missionChallengeInfo: { type: [missionChallengeInfoSchema], default: [] }, // 精英关卡信息
+})
+
+// 进行中战斗信息 结束返回奖励
+const battleInfoSchema = new mongoose.Schema({
+  battleid: { type: Number, required: true }, // 战斗ID
+  battle_type: { type: Number, required: true }, // 战斗类型 1-普通 3-精英
+  configId: { type: Number, default: 1, required: true }, // 关卡
+  reward: { type: Array, default: [], required: true }, // 奖励ID 
+})
+
 const neighborUserSchema = new mongoose.Schema({
   // Userid: { type: String, required: true, unique: true ,index: true}, // 用户ID
   openid: { type: String, required: true, unique: true }, // 用户唯一标识
@@ -20,6 +61,14 @@ const neighborUserSchema = new mongoose.Schema({
   ChapterWaveId: { type: Number, default: 0 }, // 通关波次
   equips: { type: Array, default: [] }, // 已解锁的武器
   equip_table: { type: Array, default: [] }, // 已上阵的武器
+  api: {type: apiSchema, default: {}}, // 数据
+  DrawChapterBoxAny: { type: String, default: "" }, // 已领取章节宝箱
+  DNA_SMALL: { type: Number, default: 0 }, // 普通天赋书
+  TalentLeft: { type: Array, default: [] }, // 左侧天赋解锁
+  TalentRight: { type: Array, default: [] }, // 右侧天赋解锁
+  function_open: { type: Array, default: [] }, // 已功能开放
+  Gear: { type: Array, default: [] }, // TODO: 啥东西
+  battleInfo: { type: battleInfoSchema, }, // 进行中战斗信息
 });
 
 // 根据token获取用户信息

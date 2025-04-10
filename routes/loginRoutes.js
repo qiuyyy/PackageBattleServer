@@ -62,5 +62,11 @@ router.post('/user/login', async (req, res) => {
       last_login_time: user.last_login_time,
       token,
     }));
-  });
-  module.exports = router;
+});
+
+// 公告？
+router.post('/system/notice', async (req, res) => {
+  const user = req.user.toObject();
+  res.json(formatResponse({}));
+});
+module.exports = router;
