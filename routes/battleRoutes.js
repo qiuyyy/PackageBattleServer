@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { formatResponse, saveUserItem } = require('../tools/CustomUtils');
+const { formatResponse, saveUserItem, getRandomWeaponBlueprint } = require('../tools/CustomUtils');
 const GameConfig = require('../tools/GameConfig');
 
 // 开始战斗
@@ -8,6 +8,20 @@ router.post('/battle/sendMissBegin', async (req, res) => {
     // 保存进行中战斗信息
     const user = req.user;
     const battleId = Math.floor(100000 + Math.random() * 900000); // 生成六位随机数
+    let randomReward = []; // 随机奖励
+    // 随机奖励生成并保持
+    req.body.reward = req.body.reward.filter(item => {
+        if (item[0] == GameConfig.ItemId.WeaponBlueprintRandom) { // 武器随机图纸
+            randomReward = getRandomWeaponBlueprint(item[1]); // 生成随机武器图纸
+            return false;
+        } else if (item[0] == GameConfig.ItemId.EquipBlueprintRandom) { // 装备随机图纸
+            // TODO: 生成随机装备图纸
+            return false;
+        }
+        return true;
+    })
+    req.body.reward = req.body.reward.concat(randomReward);
+
     // 保存战斗信息
     user.battleInfo = {
         battleid: battleId,
@@ -46,6 +60,11 @@ router.post('/battle/sendMissResult', async (req, res) => {
                 user.ChapterWaveId = req.body.ChapterWaveId; // 保存通关波次
             }
             let reward = user.battleInfo.reward; // 奖励物品
+            // 固定奖励
+            user.battleInfo.fixReward.forEach(item => { 
+                reward.push(item);
+                setUserItem(user, GameConfig.ItemId.Exp, item[0], item[1]); // 增加固定奖励
+            })
             await user.save();
             res.json(formatResponse({
                 items: reward,
@@ -93,15 +112,28 @@ router.post('/battle/sendMissResult', async (req, res) => {
 // 获取宝箱奖励
 router.post('/battle/drawMissionBoxAny', async (req, res) => {
     const user = req.user;
+    let randomReward = [];
     // 保存奖励物品
-    req.body.MainReward.forEach(item => {
-        saveUserItem(user, item[0], item[1]);
+    req.body.MainReward = req.body.MainReward.filter(item => {
+        if (item[0] == GameConfig.ItemId.WeaponBlueprintRandom) { // 武器随机图纸
+            randomReward = getRandomWeaponBlueprint(item[1]); // 生成随机武器图纸
+            randomReward.forEach(item => { // 保存随机武器图纸
+                saveUserItem(user, item[0], item[1]);
+            })
+            return false;
+        } else if (item[0] == GameConfig.ItemId.EquipBlueprintRandom) { // 装备随机图纸
+            // TODO: 生成随机装备图纸
+            return false;
+        } else { // 普通物品
+            saveUserItem(user, item[0], item[1]);
+            return true;
+        }
     })
     // 保存领取信息
     user.DrawChapterBoxAny = user.DrawChapterBoxAny == "" ? user.DrawChapterBoxAny + req.body.ID : user.DrawChapterBoxAny + "," + req.body.ID;
     await user.save();
     res.json(formatResponse({
-        items: req.body.MainReward,
+        items: req.body.MainReward.concat(randomReward),
         kv: {
             // ChapterID: req.body.ChapterId,
             ChapterID: 0,

@@ -29,7 +29,7 @@ module.exports = {
     ItemId: {
         Diamond: 1, // 钻石
         Gold: 2, // 金币
-        DNA: 3,
+        DNA: 3, // 特殊天赋书
         Power: 4, // 体力
         Exp: 5, // 经验
         DNA_SMALL: 6, // 普通天赋书
@@ -40,9 +40,21 @@ module.exports = {
         EquipBlueprintRandom: 137, //随机装备图纸
     },
 
+
     adGetPowerCount: 5, //广告获取数量
     gemGetPowerCount: 15, //购买获取数量
     gemGetPowerCost: 30, // 钻石购买体力消耗
 
     battlePowerCost: 5, //战斗体力消耗
+
+    // 武器品质
+    weaponQuality: {
+        QUALITY_1: 3, // 优秀
+        QUALITY_2: 4, // 史诗
+        QUALITY_3: 5, // 传说
+        QUALITY_4: 6, // 神话
+        QUALITY_5: 7, // 至尊
+    },
+
+    weaponIdByQuality: {}, // 武器品质对应id
 }

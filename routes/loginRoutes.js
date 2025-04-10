@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { formatResponse, getSercetKey } = require('../tools/CustomUtils');
+const { formatResponse, getSercetKey} = require('../tools/CustomUtils');
 const jwt = require('jsonwebtoken'); // 新增jwt库
 
 router.post('/user/login', async (req, res) => {

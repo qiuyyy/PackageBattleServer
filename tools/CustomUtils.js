@@ -1,5 +1,7 @@
 var $DesMg = require("./DesMg");
 var GameConfig = require("./GameConfig");
+var path = require('path'); //系统路径模块
+const fs = require('fs');
 module.exports = {
     formatResponse(data, code = GameConfig.NetCode.OK, msg = "success") {
         return $DesMg.default.encode(
@@ -28,28 +30,17 @@ module.exports = {
             case GameConfig.ItemId.Exp:
                 if (user.Exp + num < 0) return false;
                 user.Exp += num;
-                break;
-            case GameConfig.ItemId.DNA_SMALL:
-                if (user.DNA_SMALL + num < 0) return false;
-                user.DNA_SMALL += num;
+                // TODO: 检查是否升级
                 break;
             case GameConfig.ItemId.Energy:
                 break;
             case GameConfig.ItemId.ARENA_COIN:
                 break;
             case GameConfig.ItemId.WeaponBlueprintRandom:
-                // 随机生成num个1-9整数，并将相同的整数组合成数组
-                const blueprints = {};
-                for (let i = 0; i < num; i++) {
-                    const randomNum = Math.floor(Math.random() * 9) + 1;
-                    let itemId = 100 + randomNum;
-                    if (blueprints[itemId]) {
-                        blueprints[itemId]++;
-                    } else {
-                        blueprints[itemId] = 1;
-                    }
-                }
-                for (const [id, count] of Object.entries(blueprints)) {
+                const blueprints = getRandomWeaponBlueprint(num); // 生成武器图纸并存入
+                blueprints.forEach(element => {
+                    const id = element[0];
+                    const count = element[1];
                     let bagItem = user.api.bagInfo.find(item => item.Itemid == id);
                     if (bagItem) {
                         bagItem.Num += count; // 增加数量 
@@ -57,15 +48,15 @@ module.exports = {
                         // 新增物品
                         user.api.bagInfo.push({ Itemid: id, Num: count }); 
                     }
-                }
+                })
                 break;
             case GameConfig.ItemId.EquipBlueprintRandom:
                 // TODO: 生成装备图纸并存入
                 break;
             default:
-                // 背包物品
+                // 背包物品 || 天赋书
                 let bagItem = user.api.bagInfo.find(item => item.Itemid == itemId);
-                if (bagItem.Num + num < 0) return false;
+                if (!(num > 0 || (bagItem && bagItem.Num + num >= 0))) return false; // 数量不足
                 if (bagItem) {
                     bagItem.Num += num; // 增加数量 
                 } else {
@@ -75,6 +66,71 @@ module.exports = {
                 break;
         }
         return true;
+    },
+
+    // 获取随机武器
+    getRandomWeapon(quality) {
+        if (!quality) {
+            quality = getRandomProperty(GameConfig.weaponQuality);
+        }
+        let list = GameConfig.weaponIdByQuality[quality];
+        if (!list) return null; // 不存在
+        const randomNum = Math.floor(Math.random() * list.length); // 随机
+        return list[randomNum];
+    },
+
+    // 随机获取对象的一个属性值
+    getRandomProperty(obj) {
+        // 获取对象的所有属性名
+        const keys = Object.keys(obj);
+        // 如果对象为空，返回null
+        if (keys.length === 0) return null;
+        // 随机选择一个属性名
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        // 返回对应的属性值
+        return obj[randomKey];
+    },
+
+    // 读取武器配置json文件，并保存为易读格式
+    loadWeaponConfig() {
+        // 读取配置json文件
+        const data = fs.readFileSync(path.join(__dirname, '../config/EquipBase.json'), 'utf8');
+        const config = JSON.parse(data);
+        let byQuality = {}; // 保存武器品质对应id
+        config.forEach(element => {
+            if (!element.Pass) { //非可上阵武器
+                let q = byQuality[element.EquipQuality]; // 初始化
+                if (!q) {
+                    q = []; // 初始化
+                    byQuality[element.EquipQuality] = q; // 保存
+                }
+                q.push(element.EquipID); // 保存
+            }
+        })
+        GameConfig.weaponIdByQuality = byQuality; // 保存
+        console.log("读取武器配置成功");
+    },
+
+    // 获取随机武器图纸
+    getRandomWeaponBlueprint(num) {
+        // 随机生成num个1-9整数，并将相同的整数组合成数组
+        const blueprints = {};
+        for (let i = 0; i < num; i++) {
+            const randomNum = Math.floor(Math.random() * 9) + 1;
+            let itemId = 100 + randomNum;
+            if (itemId == 109) itemId = 146; //9型图纸id为146
+            if (blueprints[itemId]) {
+                blueprints[itemId]++;
+            } else {
+                blueprints[itemId] = 1;
+            }
+        }
+        // 更改为[id, num]格式
+        let arr = [];
+        for (const [id, count] of Object.entries(blueprints)) {
+            arr.push([Number(id), count]);
+        }
+        return arr;
     },
 
     // 获取密钥

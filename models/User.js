@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { getSercetKey } = require('../tools/CustomUtils');
+const { totalLuckyNum } = require('../tools/GameConfig');
 
 // 背包物品
 const bagInfoSchema = new mongoose.Schema({
@@ -40,7 +41,18 @@ const battleInfoSchema = new mongoose.Schema({
   battleid: { type: Number, required: true }, // 战斗ID
   battle_type: { type: Number, required: true }, // 战斗类型 1-普通 3-精英
   configId: { type: Number, default: 1, required: true }, // 关卡
-  reward: { type: Array, default: [], required: true }, // 奖励ID 
+  reward: { type: Array, default: [], required: true }, // 奖励
+  fixReward: { type: Array, default: [], required: true }, // 固定奖励I
+})
+
+// 武器祈愿
+const cardluckySchema = new mongoose.Schema({
+  // 说明：当当前幸运值达到目标幸运值时，品质+1， 当前幸运值归0，目标幸运值+5
+  curLuckyNum: { type: Number, required: true, default: 0}, // 当前幸运值
+  totalLuckyNum: {type: Number, required: true, default: 5}, //目标幸运值
+  luckyQuality: {type: Number, required: true, default: 3}, // 当前品质
+  lucky_rewards: { type: Array, default: [] }, //祈愿奖品列表
+  draw_reward_idx: { type: Array, required: true, default: [] }, //已获得奖励
 })
 
 const neighborUserSchema = new mongoose.Schema({
@@ -63,12 +75,12 @@ const neighborUserSchema = new mongoose.Schema({
   equip_table: { type: Array, default: [] }, // 已上阵的武器
   api: {type: apiSchema, default: {}}, // 数据
   DrawChapterBoxAny: { type: String, default: "" }, // 已领取章节宝箱
-  DNA_SMALL: { type: Number, default: 0 }, // 普通天赋书
   TalentLeft: { type: Array, default: [] }, // 左侧天赋解锁
   TalentRight: { type: Array, default: [] }, // 右侧天赋解锁
   function_open: { type: Array, default: [] }, // 已功能开放
   Gear: { type: Array, default: [] }, // TODO: 啥东西
   battleInfo: { type: battleInfoSchema, }, // 进行中战斗信息
+  cardlucky: { type: cardluckySchema, default: {curLuckyNum: 0, totalLuckyNum: 5, luckyQuality: 3, lucky_rewards: [], draw_reward_idx: []}}, // 武器祈愿
 });
 
 // 根据token获取用户信息
