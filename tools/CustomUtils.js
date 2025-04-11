@@ -43,7 +43,11 @@ module.exports = {
             case GameConfig.ItemId.Exp:
                 if (user.Exp + num < 0) return false;
                 user.Exp += num;
-                // TODO: 检查是否升级
+                // 检查是否升级
+                while (user.Exp >= GameConfig.levelConfig[user.Level].exp) { // 升级
+                    user.Exp -= GameConfig.levelConfig[user.Level].exp; // 扣除经验
+                    user.Level += 1; // 增加等级
+                }
                 break;
             case GameConfig.ItemId.Energy:
                 break;
@@ -117,29 +121,6 @@ module.exports = {
         }
     },
 
-    // 读取武器配置json文件，并保存为易读格式
-    loadWeaponConfig() {
-        // 读取配置json文件
-        const data = fs.readFileSync(path.join(__dirname, '../config/EquipBase.json'), 'utf8');
-        const config = JSON.parse(data);
-        let byQuality = {}; // 保存武器品质对应id
-        let byId = {}; // 保存武器id对应配置
-        config.forEach(element => {
-            if (!element.Pass) { //非可上阵武器
-                byId[element.EquipID] = element;
-                let q = byQuality[element.EquipQuality]; // 初始化
-                if (!q) {
-                    q = []; // 初始化
-                    byQuality[element.EquipQuality] = q; // 保存
-                }
-                q.push(element.EquipID); // 保存
-            }
-        })
-        GameConfig.weaponIdByQuality = byQuality; // 保存
-        GameConfig.weaponInfoById = byId; // 保存
-        console.log("读取武器配置成功");
-    },
-
     // 获取随机武器图纸
     getRandomWeaponBlueprint(num) {
         // 随机生成num个1-9整数，并将相同的整数组合成数组
@@ -165,5 +146,37 @@ module.exports = {
     // 获取密钥
     getSercetKey() {
         return process.env.JWT_SECRET || 'fallback-secret-key'; // 设置一个密钥
-    }
+    },
+
+    // 等级配置
+    loadLevelConfig() {
+        // 读取配置json文件
+        const data = fs.readFileSync(path.join(__dirname, '../config/Level.json'), 'utf8');
+        const config = JSON.parse(data);
+        GameConfig.levelConfig = config; // 保存
+        console.log("读取等级配置成功");
+    },
+
+    // 读取武器配置json文件，并保存为易读格式
+    loadWeaponConfig() {
+        // 读取配置json文件
+        const data = fs.readFileSync(path.join(__dirname, '../config/EquipBase.json'), 'utf8');
+        const config = JSON.parse(data);
+        let byQuality = {}; // 保存武器品质对应id
+        let byId = {}; // 保存武器id对应配置
+        config.forEach(element => {
+            if (!element.Pass) { //非可上阵武器
+                byId[element.EquipID] = element;
+                let q = byQuality[element.EquipQuality]; // 初始化
+                if (!q) {
+                    q = []; // 初始化
+                    byQuality[element.EquipQuality] = q; // 保存
+                }
+                q.push(element.EquipID); // 保存
+            }
+        })
+        GameConfig.weaponIdByQuality = byQuality; // 保存
+        GameConfig.weaponInfoById = byId; // 保存
+        console.log("读取武器配置成功");
+    },
 }

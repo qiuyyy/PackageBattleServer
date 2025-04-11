@@ -42,7 +42,7 @@ const battleInfoSchema = new mongoose.Schema({
   battle_type: { type: Number, required: true }, // 战斗类型 1-普通 3-精英
   configId: { type: Number, default: 1, required: true }, // 关卡
   reward: { type: Array, default: [], required: true }, // 奖励
-  fixReward: { type: Array, default: [], required: true }, // 固定奖励I
+  fixedReward: { type: Array, default: [], required: true }, // 固定奖励I
 })
 
 // 武器祈愿

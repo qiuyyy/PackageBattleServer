@@ -13,7 +13,7 @@ router.post('/user/playerInfo', async (req, res) => {
   const user = req.user.toObject();
 
   // FIXED: 修改用户数据，用于测试====
-  user.ChapterID = 5;
+  // user.ChapterID = 5;
   // user.api.missionChallengeInfo = [{task_id: 101, draw: 0, num: 1}]
   // ===============================
 
@@ -67,7 +67,7 @@ router.post('/bag/info', async (req, res) => {
 // 保存已开放功能
 router.post('/user/functionopen', async (req, res) => {
   const user = req.user;
-  user.function_open = user.function_open.concat(req.body.functionopen);
+  user.function_open = user.function_open.concat(req.body.functionopen || []);
   await user.save();
   res.json(formatResponse({}));
 })

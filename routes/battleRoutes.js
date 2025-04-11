@@ -47,6 +47,8 @@ router.post('/battle/sendMissResult', async (req, res) => {
     const user = req.user;
     if (req.body.battleid == user.battleInfo.battleid) { // 验证战斗ID是否一致
         if (user.battleInfo.battle_type == 1) { // 普通关卡
+            let oldLevel = user.Level; // 旧等级
+            let reward = user.battleInfo.reward; // 奖励物品
             if (req.body.Pass) { // 战斗成功
                 // 保存战斗信息
                 user.ChapterID = Math.max(user.battleInfo.configId + 1, user.ChapterID); // 保存通关章节
@@ -56,14 +58,14 @@ router.post('/battle/sendMissResult', async (req, res) => {
                     saveUserItem(user, item[0], item[1]);  
                 })
             } else { // 战斗失败
+                reward = [];
                 // 保存战斗信息
                 user.ChapterWaveId = req.body.ChapterWaveId; // 保存通关波次
             }
-            let reward = user.battleInfo.reward; // 奖励物品
             // 固定奖励
-            user.battleInfo.fixReward.forEach(item => { 
+            user.battleInfo.fixedReward.forEach(item => { 
                 reward.push(item);
-                setUserItem(user, GameConfig.ItemId.Exp, item[0], item[1]); // 增加固定奖励
+                saveUserItem(user, item[0], item[1]); // 增加固定奖励
             })
             await user.save();
             res.json(formatResponse({
@@ -76,6 +78,11 @@ router.post('/battle/sendMissResult', async (req, res) => {
                     Power: user.Power, // 体力
                     ChapterMaxSurvivalTime: 0,
                     PowerRecoveryStarTime: 0, 
+                },
+                levelup: {
+                    LevelOld: oldLevel, // 旧等级
+                    LevelNew: user.Level, // 新等级
+                    Exp: user.Exp, // 经验
                 }
             }));
         } else if (req.body.battle_type == 3){ // 精英关卡

@@ -11,7 +11,7 @@ const clientRoutes = require('./routes/clientRoutes');
 const equipRoutes = require('./routes/equipRoutes');
 const battleRoutes = require('./routes/battleRoutes');
 const GameConfig = require('./tools/GameConfig');
-const { loadWeaponConfig } = require('./tools/CustomUtils');
+const { loadWeaponConfig, loadLevelConfig } = require('./tools/CustomUtils');
 
 // token验证中间件
 function authenticateToken(req, res, next) {
@@ -73,6 +73,7 @@ app.get('/', function(req, res) {
 })
 
 loadWeaponConfig();
+loadLevelConfig();
 
 // 监听端口
 const PORT = 3000;
