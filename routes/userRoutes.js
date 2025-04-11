@@ -20,7 +20,7 @@ router.post('/user/playerInfo', async (req, res) => {
   res.json(formatResponse({
     info: {
       ...user,
-      ServTimestap: new Date().getTime(), // 服务器时间戳
+      ServTimestap: Math.floor(new Date().getTime() / 1000), // 服务器时间戳
     },
   }));
 });

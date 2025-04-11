@@ -57,4 +57,15 @@ module.exports = {
     },
 
     weaponIdByQuality: {}, // 武器品质对应id
+    weaponInfoById: {}, // 武器id对应信息
+
+    /**武器祈愿相关 */
+    luckyRefreshCostDiamond: 5, // 武器祈愿刷新花费钻石
+    luckyRefreshTime: 30 * 60 * 1000, // 武器祈愿刷新时间 30分钟
+    luckyRewardQualityProb: {
+        3: 30,
+        4: 50,
+        5: 15,
+        6: 5,
+    }, // 武器祈愿奖励品质概率 百分率
 }

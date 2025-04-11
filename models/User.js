@@ -53,6 +53,8 @@ const cardluckySchema = new mongoose.Schema({
   luckyQuality: {type: Number, required: true, default: 3}, // 当前品质
   lucky_rewards: { type: Array, default: [] }, //祈愿奖品列表
   draw_reward_idx: { type: Array, required: true, default: [] }, //已获得奖励
+  rate: { type: Number, required: true, default: 0 }, // 选择的倍率
+  refresh_time: { type: Number, required: true, default: 0 }, // 剩余刷新时间
 })
 
 const neighborUserSchema = new mongoose.Schema({
@@ -80,7 +82,7 @@ const neighborUserSchema = new mongoose.Schema({
   function_open: { type: Array, default: [] }, // 已功能开放
   Gear: { type: Array, default: [] }, // TODO: 啥东西
   battleInfo: { type: battleInfoSchema, }, // 进行中战斗信息
-  cardlucky: { type: cardluckySchema, default: {curLuckyNum: 0, totalLuckyNum: 5, luckyQuality: 3, lucky_rewards: [], draw_reward_idx: []}}, // 武器祈愿
+  cardlucky: { type: cardluckySchema, default: {curLuckyNum: 0, totalLuckyNum: 5, luckyQuality: 3, lucky_rewards: [], draw_reward_idx: [], rate: 0, refresh_time: 0}}, // 武器祈愿
 });
 
 // 根据token获取用户信息

@@ -13,7 +13,20 @@ module.exports = {
         );
     },
 
+    // 检查物品是否足够 [[itemId, num]]
+    checkItemIsEnough(user, list) {
+        for (let i = 0; i < list.length; i++) {
+            const item = list[i];
+            const itemId = item[0]; // 物品ID
+            const num = item[1]; // 数量 
+            let bagItem = user.api.bagInfo.find(item => item.Itemid == itemId); // 查找背包物品
+            if (!(num > 0 || (bagItem && bagItem.Num + num >= 0))) return false; // 数量不足
+        }
+        return true;
+    },
+
     saveUserItem(user, itemId, num) {
+        console.log("=============saveUserItem", itemId, num)
         switch (itemId) {
             case GameConfig.ItemId.Gold:
                 if (user.Gold + num < 0) return false;
@@ -91,14 +104,29 @@ module.exports = {
         return obj[randomKey];
     },
 
+    // 根据概率获取随机值 {key: prob}
+    getRandomByProb(list) {
+        const totalProb = Object.values(list).reduce((sum, prob) => sum + prob, 0); // 计算总概率
+        const randomNum = Math.floor(Math.random() * totalProb) + 1; // 生成随机数
+        let cumulativeProb = 0; // 累积概率
+        for (const [key, prob] of Object.entries(list)) { // 遍历概率列表
+            cumulativeProb += prob; // 累积概率
+            if (randomNum <= cumulativeProb) { // 判断是否命中
+                return key; // 返回对应的id
+            }
+        }
+    },
+
     // 读取武器配置json文件，并保存为易读格式
     loadWeaponConfig() {
         // 读取配置json文件
         const data = fs.readFileSync(path.join(__dirname, '../config/EquipBase.json'), 'utf8');
         const config = JSON.parse(data);
         let byQuality = {}; // 保存武器品质对应id
+        let byId = {}; // 保存武器id对应配置
         config.forEach(element => {
             if (!element.Pass) { //非可上阵武器
+                byId[element.EquipID] = element;
                 let q = byQuality[element.EquipQuality]; // 初始化
                 if (!q) {
                     q = []; // 初始化
@@ -108,6 +136,7 @@ module.exports = {
             }
         })
         GameConfig.weaponIdByQuality = byQuality; // 保存
+        GameConfig.weaponInfoById = byId; // 保存
         console.log("读取武器配置成功");
     },
 
