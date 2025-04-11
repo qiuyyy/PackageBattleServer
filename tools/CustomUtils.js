@@ -44,8 +44,8 @@ module.exports = {
                 if (user.Exp + num < 0) return false;
                 user.Exp += num;
                 // 检查是否升级
-                while (user.Exp >= GameConfig.levelConfig[user.Level].exp) { // 升级
-                    user.Exp -= GameConfig.levelConfig[user.Level].exp; // 扣除经验
+                while (user.Exp >= GameConfig.levelConfig[user.Level - 1].exp) { // 升级
+                    user.Exp -= GameConfig.levelConfig[user.Level - 1].exp; // 扣除经验
                     user.Level += 1; // 增加等级
                 }
                 break;

@@ -67,6 +67,14 @@ router.post('/battle/sendMissResult', async (req, res) => {
                 reward.push(item);
                 saveUserItem(user, item[0], item[1]); // 增加固定奖励
             })
+            // 升级奖励
+            let lvUpReward = [];
+            for (let lv = oldLevel; lv < user.Level; lv++){
+                GameConfig.levelConfig[lv - 1].Rewards.forEach(i => {
+                    saveUserItem(user, i[0], i[1])
+                });
+                lvUpReward.concat(GameConfig.levelConfig[lv - 1].Rewards);
+            }
             await user.save();
             res.json(formatResponse({
                 items: reward,
@@ -83,6 +91,8 @@ router.post('/battle/sendMissResult', async (req, res) => {
                     LevelOld: oldLevel, // 旧等级
                     LevelNew: user.Level, // 新等级
                     Exp: user.Exp, // 经验
+                    Rewards: lvUpReward, // 升级奖励
+                    
                 }
             }));
         } else if (req.body.battle_type == 3){ // 精英关卡
