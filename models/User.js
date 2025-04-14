@@ -59,7 +59,7 @@ const cardluckySchema = new mongoose.Schema({
 
 const neighborUserSchema = new mongoose.Schema({
   // Userid: { type: String, required: true, unique: true ,index: true}, // 用户ID
-  openid: { type: String, required: true, unique: true }, // 用户唯一标识
+  openid: { type: String, required: true, unique: true ,index: true}, // 用户唯一标识
   last_login_time: { type: Number, default: Date.now }, // 上次登录时间
   nickname: { type: String, default: '' }, // 用户昵称
   serverName: { type: String, default: '' }, // 服务器名称

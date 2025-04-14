@@ -66,10 +66,17 @@ router.post('/bag/info', async (req, res) => {
 
 // 保存已开放功能
 router.post('/user/functionopen', async (req, res) => {
-  const user = req.user;
-  user.function_open = user.function_open.concat(req.body.functionopen || []);
-  await user.save();
-  res.json(formatResponse({}));
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json(formatResponse({}, GameConfig.NetCode.FAIL, "User not found"));
+    }
+    user.function_open = user.function_open.concat(req.body.functionopen || []);
+    await user.save();
+    res.json(formatResponse({}));
+  } catch (err) {
+    res.status(500).json(formatResponse({}, GameConfig.NetCode.FAIL, err.message));
+  }
 })
 
 // 购买体力

@@ -73,7 +73,7 @@ router.post('/battle/sendMissResult', async (req, res) => {
                 GameConfig.levelConfig[lv - 1].Rewards.forEach(i => {
                     saveUserItem(user, i[0], i[1])
                 });
-                lvUpReward.concat(GameConfig.levelConfig[lv - 1].Rewards);
+                lvUpReward = lvUpReward.concat(GameConfig.levelConfig[lv - 1].Rewards);
             }
             await user.save();
             res.json(formatResponse({
@@ -83,7 +83,7 @@ router.post('/battle/sendMissResult', async (req, res) => {
                     ChapterWaveId: user.ChapterWaveId,
                     Exp: user.Exp, // 经验
                     Level: user.Level, // 等级
-                    Power: user.Power, // 体力
+                    // Power: user.Power, // 体力
                     ChapterMaxSurvivalTime: 0,
                     PowerRecoveryStarTime: 0, 
                 },
