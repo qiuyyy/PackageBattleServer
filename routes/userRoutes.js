@@ -14,6 +14,11 @@ router.post('/user/playerInfo', async (req, res) => {
 
   // FIXED: 修改用户数据，用于测试====
   // user.ChapterID = 5;
+  // user.Level = 20;
+  // user.api.bagInfo.push({ Itemid: 6, Num: 1000 });
+  // req.user.api.bagInfo.push({ Itemid: 6, Num: 1000 });
+  // user.TalentLeft = 1000;
+  // await req.user.save();
   // user.api.missionChallengeInfo = [{task_id: 101, draw: 0, num: 1}]
   // ===============================
 
@@ -102,5 +107,57 @@ router.post('/user/buyPower', async (req, res) => {
     }
   }));
 })
+
+// 升级天赋
+router.post('/talent/upgrade', async (req, res) => {
+  const user = req.user;
+  if (!req.body.cost || !checkItemIsEnough(user, req.body.cost[0], - req.body.cost[1])){
+      return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+  }
+  if (req.body.id < 2000) { // 普通天赋
+    user.TalentLeft = req.body.id;
+  } else { // 特殊天赋
+    user.TalentRight = req.body.id;
+  }
+
+  await user.save();
+  res.json(formatResponse({
+    items:[
+      [req.body.cost[0], - req.body.cost[1]]
+    ],
+    kv: {
+      TalentLeft: user.TalentLeft,
+      TalentRight: user.TalentRight
+    }
+  }));
+})
+
+// 一键升级天赋
+router.post('/talent/upgradeOneKey ', async (req, res) => {
+  const user = req.user;
+  if (!req.body.cost || !checkItemIsEnough(user, req.body.cost)){
+      return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+  }
+  if (req.body.id < 2000) { // 普通天赋
+    user.TalentLeft = req.body.id;
+  } else { // 特殊天赋
+    user.TalentRight = req.body.id;
+  }
+  let itemCost = [];
+  req.body.cost.forEach(item => { // 扣除消耗
+    saveUserItem(user, item[0], - item[1]);
+    itemCost.push([item[0], - item[1]]);
+  })
+
+  await user.save();
+  res.json(formatResponse({
+    items:itemCost,
+    kv: {
+      TalentLeft: user.TalentLeft,
+      TalentRight: user.TalentRight
+    }
+  }));
+})
+
 
 module.exports = router;

@@ -77,8 +77,8 @@ const neighborUserSchema = new mongoose.Schema({
   equip_table: { type: Array, default: [] }, // 已上阵的武器
   api: {type: apiSchema, default: {}}, // 数据
   DrawChapterBoxAny: { type: String, default: "" }, // 已领取章节宝箱
-  TalentLeft: { type: Array, default: [] }, // 左侧天赋解锁
-  TalentRight: { type: Array, default: [] }, // 右侧天赋解锁
+  TalentLeft: { type: Number, default: 1000 }, // 左侧天赋解锁id
+  TalentRight: { type: Number, default: 2000 }, // 右侧天赋解锁id
   function_open: { type: Array, default: [] }, // 已功能开放
   Gear: { type: Array, default: [] }, // TODO: 啥东西
   battleInfo: { type: battleInfoSchema, }, // 进行中战斗信息
