@@ -83,6 +83,7 @@ const neighborUserSchema = new mongoose.Schema({
   Gear: { type: Array, default: [] }, // TODO: 啥东西
   battleInfo: { type: battleInfoSchema, }, // 进行中战斗信息
   cardlucky: { type: cardluckySchema, default: {curLuckyNum: 0, totalLuckyNum: 5, luckyQuality: 3, lucky_rewards: [], draw_reward_idx: [], rate: 0, refresh_time: 0}}, // 武器祈愿
+  magicWeapon: { type: Array, default: ["M2201"] }, // 已解锁神话武器
 });
 
 // 根据token获取用户信息

@@ -41,6 +41,7 @@ router.post('/user/login', async (req, res) => {
           {equip_id: 2201, unlock: 1},
           {equip_id: 2202, unlock: 1},
         ], // 初始上阵武器
+        magicWeapon: ["M2201"], // 初始解锁神话武器
       });
       await user.save();
     } else {
