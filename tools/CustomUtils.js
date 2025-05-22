@@ -27,6 +27,7 @@ module.exports = {
 
     saveUserItem(user, itemId, num) {
         console.log("=============saveUserItem", itemId, num)
+        let items = [[itemId, num]];
         switch (itemId) {
             case GameConfig.ItemId.Gold:
                 if (user.Gold + num < 0) return false;
@@ -54,7 +55,8 @@ module.exports = {
             case GameConfig.ItemId.ARENA_COIN:
                 break;
             case GameConfig.ItemId.WeaponBlueprintRandom:
-                const blueprints = getRandomWeaponBlueprint(num); // 生成武器图纸并存入
+                const blueprints = module.exports.getRandomWeaponBlueprint(num); // 生成武器图纸并存入
+                items = blueprints;
                 blueprints.forEach(element => {
                     const id = element[0];
                     const count = element[1];
@@ -82,7 +84,7 @@ module.exports = {
                 }
                 break;
         }
-        return true;
+        return items;
     },
 
     // 获取随机武器

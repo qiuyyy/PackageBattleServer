@@ -10,6 +10,7 @@ const loginRoutes = require('./routes/loginRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const equipRoutes = require('./routes/equipRoutes');
 const battleRoutes = require('./routes/battleRoutes');
+const shopRoutes = require('./routes/shopRoutes');
 const GameConfig = require('./tools/GameConfig');
 const { loadWeaponConfig, loadLevelConfig } = require('./tools/CustomUtils');
 
@@ -63,6 +64,7 @@ app.use(loginRoutes);
 app.use(clientRoutes);
 app.use(equipRoutes);
 app.use(battleRoutes);
+app.use(shopRoutes);
  
 app.get('/index.html', function (req, res) {
     res.sendFile( __dirname + "/" + "index.html" );

@@ -11,16 +11,16 @@ const bagInfoSchema = new mongoose.Schema({
 
 // 每日商品
 const dailyStoreSchema = new mongoose.Schema({
-  ItemId: { type: Number, required: true }, // 物品ID
-  Count: { type: Number, required: true }, // 数量
+  Id: { type: Number, required: true }, // 商品ID
+  Count: { type: Number, required: true }, // 物品数量
   Discount: { type: Number, required: true }, // 折扣
+  ItemId: { type: Number, required: true }, // 物品ID
   Left: { type: Number, required: true }, // 剩余
   Price: { type: Number, required: true }, // 价格
   PriceType: { type: Number, required: true }, // 价格类型
-  PriceType2: { type: String, required: true }, // 价格类型2
-  Time: { type: Number, required: true }, // 时间
-  Num: { type: Number, required: true }, // 物品数量
-  BuyNum: { type: Number, required: true }, // 购买数量 
+  PriceType2: { type: String, required: true }, // 价格类型2（2-免费 1-广告 0-钻石 3-金币）
+  Time: { type: Number, required: true }, // 上一次广告购买时间
+  priceType2List: { type: Array, required: true }, // 价格类型2数值
 })
 
 // 精英关卡信息

@@ -7,3 +7,7 @@ shell  mongosh
 更改文档 db.<集合名>.updateOne({...},{$set: {...}})
 
 启动数据库 mongod
+
+例：
+删除某玩家  db.users.deleteOne({nickname:"玩家735f8543"})
+某玩家修改金币数 db.users.updateOne({nickname:"玩家735f8543"},{$set:{Gold:10000}})

@@ -13,6 +13,7 @@ router.post('/user/login', async (req, res) => {
 
     var new_player = false;
     var user = await User.findOne({ openid: openid });
+    var previousLoginTime = null; // 上次登录时间
     console.log("login find user:", user);
     if(!user){
       // 新玩家
@@ -20,7 +21,7 @@ router.post('/user/login', async (req, res) => {
       user = new User({ 
         nickname: "玩家" + openid.split("-")[0], // 根据openid生成一个昵称,
         openid: openid,
-        last_login_time: new Date().getTime(), // 上次登录时间,
+        last_login_time: new Date().getTime(), // 更新登录时间,
         Regdate: new Date().getTime(), // 添加注册时间
         equips: [
           { cfgid: 2101,color_cfgid:0,id:18945860,lv: 1, star:0},
@@ -45,7 +46,21 @@ router.post('/user/login', async (req, res) => {
       });
       await user.save();
     } else {
-      user.last_login_time = new Date();
+      previousLoginTime = user.last_login_time; // 保存上次登录时间
+      user.last_login_time = new Date().getTime(); // 更新为本次登录时间
+      await user.save();
+    }
+
+    // 判断是否为今日首次登录
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); // 获取今天零点的时间戳
+    if (!previousLoginTime || previousLoginTime < todayStart) { // 今天首次登录
+      // 重置每日商店
+      user.api.dailyStore = [
+        {Count: 10, Discount: 10, Id: 1, ItemId: 1, Left: 2, Price: 1, PriceType: 0, PriceType2: "2,1", Time: 0, priceType2List: [2, 1]},
+        {Count: 50, Discount: 10, Id: 2, ItemId: 110, Left: 2, Price: 20, PriceType: 0, PriceType2: "1,1", Time: 0, priceType2List: [1, 1]},
+        {Count: 100, Discount: 10, Id: 3, ItemId: 2, Left: 3, Price: 50, PriceType: 2, PriceType2: "0,0,0", Time: 0, priceType2List: [0, 0, 0]},
+      ]
       await user.save();
     }
 
@@ -60,7 +75,7 @@ router.post('/user/login', async (req, res) => {
     res.json(formatResponse({
       openid,
       new_player,
-      last_login_time: user.last_login_time,
+      last_login_time: previousLoginTime,
       token,
     }));
 });

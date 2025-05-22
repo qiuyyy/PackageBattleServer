@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-const { formatResponse ,saveUserItem} = require('../tools/CustomUtils');
+const { formatResponse ,saveUserItem, checkItemIsEnough} = require('../tools/CustomUtils');
 const router = express.Router();
 var GameConfig = require("../tools/GameConfig");
 
