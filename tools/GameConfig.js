@@ -41,11 +41,12 @@ module.exports = {
     },
 
 
+    // 体力相关
     adGetPowerCount: 5, //广告获取数量
     gemGetPowerCount: 15, //购买获取数量
     gemGetPowerCost: 30, // 钻石购买体力消耗
-
     battlePowerCost: 5, //战斗体力消耗
+    POWER_RECOVERY_CD: 1200, // 恢复1体力cd
 
     // 武器品质
     weaponQuality: {
