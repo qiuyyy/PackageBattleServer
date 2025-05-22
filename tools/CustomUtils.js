@@ -40,6 +40,12 @@ module.exports = {
             case GameConfig.ItemId.Power:
                 if (user.Power + num < 0) return false;
                 user.Power += num;
+                // 非满体力时，开始恢复计时
+                if (user.Power < user.MaxPower) {
+                    user.PowerRecoveryStartTime = Math.floor(new Date().getTime() / 1000); // 恢复计时
+                } else {
+                    user.PowerRecoveryStartTime = 0; // 恢复计时
+                }
                 break;
             case GameConfig.ItemId.Exp:
                 if (user.Exp + num < 0) return false;

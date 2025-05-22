@@ -101,7 +101,7 @@ router.post('/user/buyPower', async (req, res) => {
       [GameConfig.ItemId.Power, req.body.diamond ? GameConfig.gemGetPowerCount : GameConfig.adGetPowerCount, true, false]
     ],
     kv: {
-      PowerRecoveryStartTime: user.Power < user.MaxPower ? new Date().getTime() : 0,
+      PowerRecoveryStartTime: user.PowerRecoveryStartTime,
       AdPowerDrawTime: 0,
       Power: user.Power, //目前体力数
     }

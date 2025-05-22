@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const { formatResponse, getSercetKey} = require('../tools/CustomUtils');
 const jwt = require('jsonwebtoken'); // 新增jwt库
+const GameConfig = require('../tools/GameConfig');
 
 router.post('/user/login', async (req, res) => {
     // 拿取uuid作为openid
@@ -48,6 +49,18 @@ router.post('/user/login', async (req, res) => {
     } else {
       previousLoginTime = user.last_login_time; // 保存上次登录时间
       user.last_login_time = new Date().getTime(); // 更新为本次登录时间
+      // 计算体力恢复
+      if (user.Power < user.MaxPower && user.PowerRecoveryStartTime > 0) { // 未满体力
+        const currentTime = Math.floor(new Date().getTime() / 1000); // 当前时间戳
+        const recoveryPowerCount = Math.floor((currentTime - user.PowerRecoveryStartTime) / GameConfig.POWER_RECOVERY_CD); // 恢复次数
+        if (recoveryPowerCount > 0) { // 恢复次数大于0
+          user.Power = Math.min(user.Power + recoveryPowerCount, user.MaxPower); // 恢复体力
+          user.PowerRecoveryStartTime = user.PowerRecoveryStartTime + recoveryPowerCount * GameConfig.POWER_RECOVERY_CD; // 更新恢复时间
+        }
+      }
+      if (user.Power >= user.MaxPower) { // 满体力
+        user.PowerRecoveryStartTime = 0; // 重置恢复时间
+      }
       await user.save();
     }
 

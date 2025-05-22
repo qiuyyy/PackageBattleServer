@@ -75,6 +75,7 @@ const neighborUserSchema = new mongoose.Schema({
   Exp: { type: Number, default: 0 }, // 当前经验值
   MaxPower: { type: Number, default: 30 }, // 最大体力值
   Power: { type: Number, default: 30 }, // 当前体力值
+  PowerRecoveryStartTime: { type: Number, default: 0 }, // 体力恢复开始时间
   Regdate: { type: Number, default: Date.now }, // 注册时间
   ChapterID: { type: Number, default: 1 }, // 通关章节
   ChapterWaveId: { type: Number, default: 0 }, // 通关波次
