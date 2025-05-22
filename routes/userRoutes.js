@@ -111,7 +111,7 @@ router.post('/user/buyPower', async (req, res) => {
 // 升级天赋
 router.post('/talent/upgrade', async (req, res) => {
   const user = req.user;
-  if (!req.body.cost || !checkItemIsEnough(user, req.body.cost[0], - req.body.cost[1])){
+  if (req.body.cost && !saveUserItem(user, req.body.cost[0], - req.body.cost[1])){
       return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
   }
   if (req.body.id < 2000) { // 普通天赋
