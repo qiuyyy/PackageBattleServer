@@ -61,6 +61,8 @@ router.post('/user/login', async (req, res) => {
         {Count: 50, Discount: 10, Id: 2, ItemId: 110, Left: 2, Price: 20, PriceType: 0, PriceType2: "1,1", Time: 0, priceType2List: [1, 1]},
         {Count: 100, Discount: 10, Id: 3, ItemId: 2, Left: 3, Price: 50, PriceType: 2, PriceType2: "0,0,0", Time: 0, priceType2List: [0, 0, 0]},
       ]
+      // 重置每日次数
+      user.api.TodayCounts = { RereshStoreNum: 0 }
       await user.save();
     }
 

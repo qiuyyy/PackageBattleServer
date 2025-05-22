@@ -33,7 +33,13 @@ router.post('/shop/refreshDailyStore', async (req, res) => {
     const user = req.user;
     try {
         // 消耗
+        if (req.body.cost) {
+            if (!saveUserItem(user, req.body.cost[0], - req.body.cost[1])) { // 消耗
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+            }
+        }
 
+        user.TodayCounts.RereshStoreNum++; // 今日刷新商店次数+1
         // 刷新非免费商品剩余数量
         user.api.dailyStore = user.api.dailyStore.map(item => {
             if (item.PriceType !== 0) { // 非免费商品
@@ -44,6 +50,7 @@ router.post('/shop/refreshDailyStore', async (req, res) => {
         await user.save();
         res.json(formatResponse({
             dailyStore: user.api.dailyStore,
+            RereshStoreNum: user.TodayCounts.RereshStoreNum,
         }));
     } catch (err) {
         res.status(500).json({ errcode: 1, message: 'Server error' + err });

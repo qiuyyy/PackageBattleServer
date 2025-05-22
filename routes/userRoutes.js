@@ -13,7 +13,7 @@ router.post('/user/playerInfo', async (req, res) => {
   const user = req.user.toObject();
 
   // FIXED: 修改用户数据，用于测试====
-  // user.ChapterID = 5;
+  user.ChapterID = 5;
   // user.Level = 20;
   // user.api.bagInfo.push({ Itemid: 6, Num: 1000 });
   // req.user.api.bagInfo.push({ Itemid: 6, Num: 1000 });
