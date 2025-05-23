@@ -27,6 +27,8 @@ module.exports = {
 
     saveUserItem(user, itemId, num) {
         console.log("=============saveUserItem", itemId, num)
+        itemId = parseInt(itemId);
+        itemNum = parseInt(num);
         let items = [[itemId, num]];
         switch (itemId) {
             case GameConfig.ItemId.Gold:
