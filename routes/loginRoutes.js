@@ -47,6 +47,20 @@ router.post('/user/login', async (req, res) => {
       });
       await user.save();
     } else {
+      if (user.equips.length <= 0) { // 武器重置
+        user.equips = [
+          { cfgid: 2101,color_cfgid:0,id:18945860,lv: 1, star:0},
+          { cfgid: 2102,color_cfgid:0,id:18945861,lv: 1, star:0},
+          { cfgid: 2103,color_cfgid:0,id:18945862,lv: 1, star:0},
+          { cfgid: 2104,color_cfgid:0,id:18945863,lv: 1, star:0},
+          { cfgid: 2201,color_cfgid:0,id:18945863,lv: 1, star:0},
+          { cfgid: 2202,color_cfgid:0,id:18945863,lv: 1, star:0},
+          { cfgid: 2203,color_cfgid:0,id:18945863,lv: 1, star:0},
+          { cfgid: 2205,color_cfgid:0,id:18945863,lv: 1, star:0},
+          { cfgid: 2207,color_cfgid:0,id:18945863,lv: 1, star:0},
+        ];
+      }
+
       previousLoginTime = user.last_login_time; // 保存上次登录时间
       user.last_login_time = new Date().getTime(); // 更新为本次登录时间
       // 计算体力恢复

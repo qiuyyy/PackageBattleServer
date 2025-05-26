@@ -95,7 +95,7 @@ router.post('/cardlucky/refresh', async (req, res) => {
         if (weaponId) rewards.push([weaponId, Math.floor(Math.random() * (numLimit[1] - numLimit[0] + 1)) + numLimit[0]]); // 随机数量
     }
     user.cardlucky.lucky_rewards = rewards;
-    // 更新刷新时间 默认30分钟
+    // 更新刷新时间
     user.cardlucky.refresh_time = new Date().getTime() + GameConfig.luckyRefreshTime;
     user.save();
     res.json(formatResponse({
@@ -126,6 +126,11 @@ router.post('/cardlucky/info', async (req, res) => {
     const numLimit = [8, 30]; //武器数量界限
     let rewards = user.cardlucky.lucky_rewards;
     if (!rewards || rewards.length == 0 || user.cardlucky.refresh_time < new Date().getTime()) {
+        // 没有配置或者已经过期，重新配置
+        // 初始化数据
+        user.cardlucky.lucky_rewards = []; // 重置奖品列表
+        user.cardlucky.draw_reward_idx = []; // 重置已获得奖励
+        user.cardlucky.rate = 0; // 重置倍率
         // 根据品质获取三个随机武器
         rewards = [];
         // 可随机的品质概率列表
@@ -140,7 +145,7 @@ router.post('/cardlucky/info', async (req, res) => {
             if (weaponId) rewards.push([weaponId, Math.floor(Math.random() * (numLimit[1] - numLimit[0] + 1)) + numLimit[0]]); // 随机数量
         }
         user.cardlucky.lucky_rewards = rewards;
-        // 更新刷新时间 默认30分钟
+        // 更新刷新时间
         user.cardlucky.refresh_time = new Date().getTime() + GameConfig.luckyRefreshTime;
     }
     user.save();
@@ -188,12 +193,20 @@ router.post('/cardlucky/start', async (req, res) => {
         user.cardlucky.curLuckyNum = 0;
         user.cardlucky.totalLuckyNum += 5;
     }
-    // 抽取结果
-    let idx = Math.floor(Math.random() * user.cardlucky.lucky_rewards.length); // 随机奖品
-    let reward = user.cardlucky.lucky_rewards[idx]; // 奖品
+    // 在剩余选项中抽取结果
+    let idx = Math.floor(Math.random() * (user.cardlucky.lucky_rewards.length - user.cardlucky.draw_reward_idx.length)); // 随机奖品
+    let reward = user.cardlucky.lucky_rewards.filter((e,index) => {
+        return user.cardlucky.draw_reward_idx.indexOf(index) == -1; // 未抽过的奖品
+    })[idx]; // 奖品
     // 保存已抽取的奖品
     user.cardlucky.draw_reward_idx.push(idx);
     saveUserItem(user, reward[0], reward[1] * user.cardlucky.rate);
+    // 如果为新武器则解锁
+    let newEquips = [];
+    if (reward[0] >= 1000 && !user.equips.find(e => e.cfgid === reward[0] - 1000)) {
+        newEquips = [{cfgid: reward[0] - 1000, color_cfgid:0,id:18945863,lv: 1, star:0}];
+        user.equips.push(newEquips[0],); // 解锁新武器 
+    }
 
     user.save();
 
@@ -202,6 +215,7 @@ router.post('/cardlucky/start', async (req, res) => {
             [costCurrencyTypeMap[user.cardlucky.draw_reward_idx.length - 1], - costCurrencyCountMap[user.cardlucky.draw_reward_idx.length - 1] * user.cardlucky.rate],
             [reward[0], reward[1] * user.cardlucky.rate]
         ], // 物品增减
+        equips: newEquips, // 新武器
         reward: [reward[0], reward[1] * user.cardlucky.rate], //获得奖励    
         client: {
             endRefreshTime: Math.floor(user.cardlucky.refresh_time / 1000),

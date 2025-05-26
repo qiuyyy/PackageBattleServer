@@ -62,12 +62,12 @@ module.exports = {
 
     /**武器祈愿相关 */
     luckyRefreshCostDiamond: 5, // 武器祈愿刷新花费钻石
-    luckyRefreshTime: 30 * 60 * 1000, // 武器祈愿刷新时间 30分钟
+    luckyRefreshTime: 20 * 60 * 1000, // 武器祈愿刷新时间 30分钟
     luckyRewardQualityProb: {
-        3: 30,
-        4: 50,
-        5: 15,
-        6: 5,
+        3: 60,
+        4: 40,
+        5: 0,
+        6: 0,
     }, // 武器祈愿奖励品质概率 百分率
 
     levelConfig:{}, // 等级配置
