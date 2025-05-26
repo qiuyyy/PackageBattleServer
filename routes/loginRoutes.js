@@ -59,6 +59,14 @@ router.post('/user/login', async (req, res) => {
           { cfgid: 2205,color_cfgid:0,id:18945863,lv: 1, star:0},
           { cfgid: 2207,color_cfgid:0,id:18945863,lv: 1, star:0},
         ];
+        user.equip_table = [
+          {equip_id: 2101, unlock: 1},
+          {equip_id: 2102, unlock: 1},
+          {equip_id: 2103, unlock: 1},
+          {equip_id: 2104, unlock: 1},
+          {equip_id: 2201, unlock: 1},
+          {equip_id: 2202, unlock: 1},
+        ];
       }
 
       previousLoginTime = user.last_login_time; // 保存上次登录时间

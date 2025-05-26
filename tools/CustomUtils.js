@@ -95,6 +95,26 @@ module.exports = {
         return items;
     },
 
+    // 物品数据格式转换 [[itemId, num]] => {itemId: num}
+    formatItemsToObj(items) {
+        let data = {};
+        items.forEach(element => {
+            const id = element[0];
+            const count = element[1];
+            data[id] = count; // 保存
+        })
+        return data;
+    },
+
+    // 物品格式转换 {itemId: num} => [[itemId, num]]
+    formatItemsToArr(items) {
+        let data = [];
+        for (const [id, count] of Object.entries(items)) { // 遍历
+            data.push([Number(id), count]); // 保存
+        }
+        return data;
+    },
+
     // 获取随机武器
     getRandomWeapon(quality) {
         if (!quality) {

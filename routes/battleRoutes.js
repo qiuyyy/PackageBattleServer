@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { formatResponse, saveUserItem, getRandomWeaponBlueprint } = require('../tools/CustomUtils');
+const { formatResponse, saveUserItem, getRandomWeaponBlueprint, formatItemsToObj, formatItemsToArr } = require('../tools/CustomUtils');
 const GameConfig = require('../tools/GameConfig');
 
 // 开始战斗
@@ -9,7 +9,7 @@ router.post('/battle/sendMissBegin', async (req, res) => {
     const user = req.user;
     const battleId = Math.floor(100000 + Math.random() * 900000); // 生成六位随机数
     let randomReward = []; // 随机奖励
-    // 随机奖励生成并保持
+    // 随机奖励生成并保存
     req.body.reward = req.body.reward.filter(item => {
         if (item[0] == GameConfig.ItemId.WeaponBlueprintRandom) { // 武器随机图纸
             randomReward = getRandomWeaponBlueprint(item[1]); // 生成随机武器图纸
@@ -62,6 +62,21 @@ router.post('/battle/sendMissResult', async (req, res) => {
                 // 保存战斗信息
                 user.ChapterWaveId = req.body.ChapterWaveId; // 保存通关波次
             }
+            // 波次奖励(奖励数=配置*波次数)
+            let rewardObj = formatItemsToObj(reward); // 奖励物品对象
+            if (req.body.RealWave > 1) { // 不是第一波
+                user.battleInfo.waveReward.forEach(item => { 
+                    let a = saveUserItem(user, item[0], item[1] * (req.body.RealWave-1));
+                    a.forEach(i => {
+                        if (rewardObj[i[0]]) { // 存在则增加数量
+                            rewardObj[i[0]] += i[1]; // 增加数量
+                        } else { // 不存在则添加
+                            rewardObj[i[0]] = i[1]; // 添加
+                        }
+                    })
+                })
+            }
+            reward = formatItemsToArr(rewardObj); // 奖励物品数组
             // 固定奖励
             user.battleInfo.fixedReward.forEach(item => { 
                 reward.push(item);
