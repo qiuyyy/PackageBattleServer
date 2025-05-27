@@ -13,7 +13,7 @@ router.post('/user/playerInfo', async (req, res) => {
   const user = req.user.toObject();
 
   // FIXED: 修改用户数据，用于测试====
-  // user.ChapterID = 5;
+  // user.ChapterID = 6;
   // user.Level = 20;
   // user.api.bagInfo.push({ Itemid: 6, Num: 1000 });
   // req.user.api.bagInfo.push({ Itemid: 6, Num: 1000 });
@@ -91,8 +91,10 @@ router.post('/user/buyPower', async (req, res) => {
     if (!saveUserItem(user, GameConfig.ItemId.Diamond, - GameConfig.gemGetPowerCost)) {
       return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
     }
+    user.TodayCounts.BuyPowerGemCount += 1;
     saveUserItem(user, GameConfig.ItemId.Power, GameConfig.gemGetPowerCount)
   } else { // 广告购买
+    user.TodayCounts.BuyPowerVideoCount += 1;
     saveUserItem(user, GameConfig.ItemId.Power, GameConfig.adGetPowerCount)
   }
   await user.save();

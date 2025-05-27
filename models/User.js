@@ -61,6 +61,8 @@ const cardluckySchema = new mongoose.Schema({
 // 今日次数
 const TodayCountsSchema = new mongoose.Schema({
   RereshStoreNum: { type: Number, required: true, default: 0 }, // 今日刷新商店次数
+  BuyPowerVideoCount: { type: Number, required: true, default: 0 }, // 今日广告获取体力次数
+  BuyPowerGemCount: { type: Number, required: true, default: 0 }, // 今日钻石购买体力次数
 })
 
 const neighborUserSchema = new mongoose.Schema({
@@ -92,6 +94,7 @@ const neighborUserSchema = new mongoose.Schema({
   cardlucky: { type: cardluckySchema, default: {curLuckyNum: 0, totalLuckyNum: 5, luckyQuality: 3, lucky_rewards: [], draw_reward_idx: [], rate: 0, refresh_time: 0}}, // 武器祈愿
   magicWeapon: { type: Array, default: ["M2201"] }, // 已解锁神话武器
   TodayCounts: {type: TodayCountsSchema, default: {}}, // 今日次数
+  
 });
 
 // 根据token获取用户信息
