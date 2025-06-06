@@ -25,6 +25,7 @@ module.exports = {
         return true;
     },
 
+    // 检查物品是否足够并扣除物品 num:变化数量 return: 扣除的物品列表 [[itemId, num]]
     saveUserItem(user, itemId, num) {
         console.log("=============saveUserItem", itemId, num)
         itemId = parseInt(itemId);

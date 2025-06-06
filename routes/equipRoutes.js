@@ -199,7 +199,7 @@ router.post('/cardlucky/start', async (req, res) => {
         return user.cardlucky.draw_reward_idx.indexOf(index) == -1; // 未抽过的奖品
     })[idx]; // 奖品
     // 保存已抽取的奖品
-    user.cardlucky.draw_reward_idx.push(idx);
+    user.cardlucky.draw_reward_idx.push(user.cardlucky.lucky_rewards.indexOf(reward));
     saveUserItem(user, reward[0], reward[1] * user.cardlucky.rate);
     // 如果为新武器则解锁
     let newEquips = [];

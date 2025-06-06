@@ -46,7 +46,7 @@ module.exports = {
     gemGetPowerCount: 15, //购买获取数量
     gemGetPowerCost: 30, // 钻石购买体力消耗
     battlePowerCost: 5, //战斗体力消耗
-    POWER_RECOVERY_CD: 1200, // 恢复1体力cd
+    POWER_RECOVERY_CD: 1200, // 恢复1体力cd（同前端一致）
 
     // 武器品质
     weaponQuality: {

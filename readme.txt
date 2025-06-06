@@ -10,4 +10,6 @@ shell  mongosh
 
 例：
 删除某玩家  db.users.deleteOne({nickname:"玩家735f8543"})
+刷新每日数据 db.users.updateOne({nickname:"玩家735f8543"},{$set:{last_login_time:0}})
 某玩家修改金币数 db.users.updateOne({nickname:"玩家735f8543"},{$set:{Gold:10000}})
+        (多级)  db.users.updateOne({nickname:"玩家735f8543"},{$set:{"cardlucky.luckyQuailty":10000}})

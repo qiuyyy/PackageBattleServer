@@ -13,7 +13,7 @@ router.post('/user/playerInfo', async (req, res) => {
   const user = req.user.toObject();
 
   // FIXED: 修改用户数据，用于测试====
-  // user.ChapterID = 6;
+  // user.ChapterID = 5;
   // user.Level = 20;
   // user.api.bagInfo.push({ Itemid: 6, Num: 1000 });
   // req.user.api.bagInfo.push({ Itemid: 6, Num: 1000 });
@@ -67,6 +67,22 @@ router.post('/user/savePlayerInfo', async (req, res) => {
 router.post('/bag/info', async (req, res) => {
   const user = req.user.toObject();
   res.json(formatResponse(user.api.bagInfo)); // 背包物品列表 
+});
+
+// 使用物品
+router.post('/user/useItem', async (req, res) => {
+  const user = req.user.toObject();
+  if (req.body.count <= 0) {
+    return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "count error"));
+  }
+  let items = []; // 物品列表
+  if (items = !saveUserItem(req.user, req.body.itemid, - req.body.count)) {
+    return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+  }
+  
+  res.json(formatResponse({
+    items,
+  }));
 });
 
 // 保存已开放功能
@@ -163,6 +179,12 @@ router.post('/talent/upgradeOneKey', async (req, res) => {
       TalentRight: user.TalentRight
     }
   }));
+})
+
+// 礼包兑换码
+router.post('/user/giftCode', async (req, res) => {
+  const user = req.user;
+  return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "code is error"));
 })
 
 
