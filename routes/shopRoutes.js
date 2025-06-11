@@ -35,7 +35,7 @@ router.post('/shop/refreshDailyStore', async (req, res) => {
         // 消耗
         if (req.body.cost) {
             if (!saveUserItem(user, req.body.cost[0], - req.body.cost[1])) { // 消耗
-                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
             }
         }
 
@@ -68,13 +68,13 @@ router.post('/shop/dailyStoreBuy', async (req, res) => {
             // 消耗钻石
             costId = GameConfig.ItemId.Diamond;
             if (!saveUserItem(user, GameConfig.ItemId.Diamond, - item.Price)) {
-                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
             }
         } else if (item.priceType2List[item.priceType2List.length - item.Left] == 3) {
             // 消耗金币
             costId = GameConfig.ItemId.Gold;
             if (!saveUserItem(user, GameConfig.ItemId.Gold, - item.Price)) {
-                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
             }
         }
         // 购买看广告商品后需要等待

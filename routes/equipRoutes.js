@@ -45,11 +45,11 @@ router.post('/equip/upLevel', async (req, res) => {
             return false;
         });
         if (!equip) { // 未解锁
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "equip not found"));
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "INVALID_EQUIP"));
         }
         // 检查材料是否充足
         if (!checkItemIsEnough(user, req.body.costItems)) {
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
         }
         // 扣除材料
         req.body.costItems.forEach(item => {
@@ -75,7 +75,7 @@ router.post('/cardlucky/refresh', async (req, res) => {
     const user = req.user;
     // 检查是否有足够的货币
     if (!saveUserItem(user, GameConfig.ItemId.Diamond, - GameConfig.luckyRefreshCostDiamond)){
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
     }
     const numLimit = [8, 30]; //武器数量界限
     // 初始化数据
@@ -181,7 +181,7 @@ router.post('/cardlucky/start', async (req, res) => {
     const costCurrencyCountMap = [100, 89, 269]; // 花费
     // 检查是否有足够的货币
     if (!saveUserItem(user, costCurrencyTypeMap[user.cardlucky.draw_reward_idx.length], - costCurrencyCountMap[user.cardlucky.draw_reward_idx.length] * req.body.rate)){
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
     }
     // 保存倍率
     user.cardlucky.rate = req.body.rate || 1; // 抽卡倍率

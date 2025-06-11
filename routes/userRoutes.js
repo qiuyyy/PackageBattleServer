@@ -77,7 +77,7 @@ router.post('/user/useItem', async (req, res) => {
   }
   let items = []; // 物品列表
   if (items = !saveUserItem(req.user, req.body.itemid, - req.body.count)) {
-    return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+    return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
   }
   
   res.json(formatResponse({
@@ -90,7 +90,7 @@ router.post('/user/functionopen', async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
-      return res.status(404).json(formatResponse({}, GameConfig.NetCode.FAIL, "User not found"));
+      return res.status(404).json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL"));
     }
     user.function_open = user.function_open.concat(req.body.functionopen || []);
     await user.save();
@@ -105,7 +105,7 @@ router.post('/user/buyPower', async (req, res) => {
   const user = req.user;
   if (req.body.diamond) { // 钻石购买
     if (!saveUserItem(user, GameConfig.ItemId.Diamond, - GameConfig.gemGetPowerCost)) {
-      return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+      return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
     }
     user.TodayCounts.BuyPowerGemCount += 1;
     saveUserItem(user, GameConfig.ItemId.Power, GameConfig.gemGetPowerCount)
@@ -130,7 +130,7 @@ router.post('/user/buyPower', async (req, res) => {
 router.post('/talent/upgrade', async (req, res) => {
   const user = req.user;
   if (req.body.cost && !saveUserItem(user, req.body.cost[0], - req.body.cost[1])){
-      return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+      return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
   }
   if (req.body.id < 2000) { // 普通天赋
     user.TalentLeft = req.body.id;
@@ -155,7 +155,7 @@ router.post('/talent/upgradeOneKey', async (req, res) => {
   const user = req.user;
   // 检查是否有足够的消耗
   if (!req.body.cost || !checkItemIsEnough(user, req.body.cost)) {
-    return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+    return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
   }
   if (req.body.leftTalentId > user.TalentLeft) { 
     // 升级普通天赋
@@ -184,7 +184,7 @@ router.post('/talent/upgradeOneKey', async (req, res) => {
 // 礼包兑换码
 router.post('/user/giftCode', async (req, res) => {
   const user = req.user;
-  return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "code is error"));
+  return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "CODE_IS_ERROR"));
 })
 
 

@@ -29,7 +29,7 @@ router.post('/battle/sendMissBegin', async (req, res) => {
     }; 
     // 减少体力
     if (!saveUserItem(user, GameConfig.ItemId.Power, - GameConfig.battlePowerCost)) {
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "item not enough"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
     }
     await user.save();
     res.json(formatResponse({
@@ -148,7 +148,7 @@ router.post('/battle/sendMissResult', async (req, res) => {
             }));
         }
     } else {
-        res.json(formatResponse({}, GameConfig.NetCode.FAIL, "battleid not match"));
+        res.json(formatResponse({}, GameConfig.NetCode.FAIL, "BATTLE_ID_NOT_MATCH"));
     }
 });
 
@@ -196,10 +196,10 @@ router.post('/battle/drawchallenge', async (req, res) => {
     // 保存领取信息
     let challengeInfo = user.api.missionChallengeInfo.find(item => item.task_id == req.body.ChallengeID);
     if (!challengeInfo) {
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "nothing to draw"))
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"))
     } else {
         if (challengeInfo.draw == 1) {
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "already draw"))
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"))
         } else {
             challengeInfo.draw = 1; // 标记为已领取
         }
