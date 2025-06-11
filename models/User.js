@@ -80,11 +80,11 @@ const neighborUserSchema = new mongoose.Schema({
   Power: { type: Number, default: 30 }, // 当前体力值
   PowerRecoveryStartTime: { type: Number, default: 0 }, // 体力恢复开始时间
   Regdate: { type: Number, default: Date.now }, // 注册时间
-  ChapterID: { type: Number, default: 1 }, // 通关章节
+  ChapterID: { type: Number, default: 1 }, // 待通关章节
   ChapterWaveId: { type: Number, default: 0 }, // 通关波次
   equips: { type: Array, default: [] }, // 已解锁的武器
   equip_table: { type: Array, default: [] }, // 已上阵的武器
-  api: {type: apiSchema, default: {}}, // 数据
+  api: {type: apiSchema, default: {dailyStore:[], bagInfo:[], missionChallengeInfo:[]}}, // 数据
   DrawChapterBoxAny: { type: String, default: "" }, // 已领取章节宝箱
   TalentLeft: { type: Number, default: 1000 }, // 左侧天赋解锁id
   TalentRight: { type: Number, default: 2000 }, // 右侧天赋解锁id

@@ -97,7 +97,7 @@ router.post('/cardlucky/refresh', async (req, res) => {
     user.cardlucky.lucky_rewards = rewards;
     // 更新刷新时间
     user.cardlucky.refresh_time = new Date().getTime() + GameConfig.luckyRefreshTime;
-    user.save();
+    await user.save();
     res.json(formatResponse({
         info: {
             lucky_rewards: rewards, // 奖品列表[id, num]
@@ -148,7 +148,7 @@ router.post('/cardlucky/info', async (req, res) => {
         // 更新刷新时间
         user.cardlucky.refresh_time = new Date().getTime() + GameConfig.luckyRefreshTime;
     }
-    user.save();
+    await user.save();
     res.json(formatResponse({
         info: {
             lucky_rewards: rewards, // 奖品列表[id, num]
@@ -208,7 +208,7 @@ router.post('/cardlucky/start', async (req, res) => {
         user.equips.push(newEquips[0],); // 解锁新武器 
     }
 
-    user.save();
+    await user.save();
 
     res.json(formatResponse({
         items: [

@@ -20,7 +20,7 @@ module.exports = {
             const itemId = item[0]; // 物品ID
             const num = item[1]; // 数量 
             let bagItem = user.api.bagInfo.find(item => item.Itemid == itemId); // 查找背包物品
-            if (!(num > 0 || (bagItem && bagItem.Num + num >= 0))) return false; // 数量不足
+            if (!bagItem || bagItem.Num - num < 0) return false; // 数量不足
         }
         return true;
     },
@@ -119,7 +119,7 @@ module.exports = {
     // 获取随机武器
     getRandomWeapon(quality) {
         if (!quality) {
-            quality = getRandomProperty(GameConfig.weaponQuality);
+            quality = module.exports.getRandomProperty(GameConfig.weaponQuality);
         }
         let list = GameConfig.weaponIdByQuality[quality];
         if (!list) return null; // 不存在

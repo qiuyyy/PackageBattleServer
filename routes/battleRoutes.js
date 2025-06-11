@@ -50,6 +50,17 @@ router.post('/battle/sendMissResult', async (req, res) => {
             let oldLevel = user.Level; // 旧等级
             let reward = user.battleInfo.reward; // 奖励物品
             if (req.body.Pass) { // 战斗成功
+                if (user.ChapterID == 1) {
+                    // 首次通过第一关 用于新手教学
+                    // 增加奖励扳手图纸x10 增加金币x100
+                    reward.push([3101, 10]);
+                    reward = reward.map(item => {
+                        if (item[0] == GameConfig.ItemId.Gold) { // 增加金币
+                            item[1] += 100; // 增加金币
+                        }
+                        return item;
+                    })
+                }
                 // 保存战斗信息
                 user.ChapterID = Math.max(user.battleInfo.configId + 1, user.ChapterID); // 保存通关章节
                 user.ChapterWaveId = 0; // 保存通关波次

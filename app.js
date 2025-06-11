@@ -27,7 +27,7 @@ function authenticateToken(req, res, next) {
         if (err) return res.sendStatus(403);
         // 获取用户信息
         const info = await User.getUserByToken(token);
-        console.log("find user:", info);
+        // console.log("find user:", info);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }

@@ -39,7 +39,7 @@ async function handleUserLogin(openid, res) {
         {equip_id: 2102, unlock: 1},
         {equip_id: 2103, unlock: 1},
         {equip_id: 2104, unlock: 1},
-        {equip_id: 2201, unlock: 1},
+        // {equip_id: 2201, unlock: 1},
         {equip_id: 2202, unlock: 1},
       ], // 初始上阵武器
       magicWeapon: ["M2201"], // 初始解锁神话武器
@@ -63,7 +63,7 @@ async function handleUserLogin(openid, res) {
         {equip_id: 2102, unlock: 1},
         {equip_id: 2103, unlock: 1},
         {equip_id: 2104, unlock: 1},
-        {equip_id: 2201, unlock: 1},
+        // {equip_id: 2201, unlock: 1},
         {equip_id: 2202, unlock: 1},
       ];
     }
