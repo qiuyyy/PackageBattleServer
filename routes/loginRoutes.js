@@ -44,7 +44,6 @@ async function handleUserLogin(openid, res) {
       ], // 初始上阵武器
       magicWeapon: ["M2201"], // 初始解锁神话武器
     });
-    await user.save();
   } else {
     if (user.equips.length <= 0) { // 武器重置
       user.equips = [
@@ -82,7 +81,6 @@ async function handleUserLogin(openid, res) {
     if (user.Power >= user.MaxPower) { // 满体力
       user.PowerRecoveryStartTime = 0; // 重置恢复时间
     }
-    await user.save();
   }
 
   // 判断是否为今日首次登录
@@ -96,9 +94,15 @@ async function handleUserLogin(openid, res) {
       {Count: 100, Discount: 10, Id: 3, ItemId: 2, Left: 3, Price: 50, PriceType: 2, PriceType2: "0,0,0", Time: 0, priceType2List: [0, 0, 0]},
     ]
     // 重置每日次数
-    user.api.TodayCounts = { RereshStoreNum: 0,BuyPowerVideoCount: 0,BuyPowerGemCount: 0 };
-    await user.save();
+    user.TodayCounts = { 
+      RereshStoreNum: 0,
+      BuyPowerVideoCount: 0,
+      BuyPowerGemCount: 0,
+      LeftPowerFastBattleCount: GameConfig.offlineDayPowerCount,
+      LeftAdFastBattleCount: GameConfig.offlineDayAdCount,
+    };
   }
+  await user.save();
 
   // 生成token
   const token = jwt.sign(

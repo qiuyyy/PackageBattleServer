@@ -15,7 +15,7 @@ const ttRoutes = require('./routes/ttRoutes');
 const GameConfig = require('./tools/GameConfig');
 const fs = require('fs');
 const https = require('https');
-const { loadWeaponConfig, loadLevelConfig } = require('./tools/CustomUtils');
+const { loadWeaponConfig, loadCommonJsonConfig } = require('./tools/CustomUtils');
 
 // token验证中间件
 function authenticateToken(req, res, next) {
@@ -69,7 +69,7 @@ app.use(equipRoutes);
 app.use(battleRoutes);
 app.use(shopRoutes);
 app.use(ttRoutes);
- 
+
 app.get('/index.html', function (req, res) {
     res.sendFile( __dirname + "/" + "index.html" );
  })
@@ -79,7 +79,7 @@ app.get('/', function(req, res) {
 })
 
 loadWeaponConfig();
-loadLevelConfig();
+loadCommonJsonConfig(["Level","TrainRewards"]);
 
 // 监听端口
 const PORT = 3000;
@@ -95,7 +95,7 @@ const options = {
     key: fs.readFileSync('./ssl/yuandianhuyu.com.key'),
     cert: fs.readFileSync('./ssl/yuandianhuyu.com.pem')
 };
-// // 启动服务器
+// 启动服务器
 // const httpsServer = https.createServer(options, app);
 // httpsServer.listen(PORT, () => {
 //     console.log(`HTTPS server running on port ${PORT}`);
@@ -109,7 +109,6 @@ const host = 'localhost';
 const mongoPort = '27017';
 
 const connectionString = `mongodb://${username}:${password}@${host}:${mongoPort}/${database}`;
-// const connectionString = `mongodb://${host}:${mongoPort}/${database}`;
 mongoose.connect(connectionString).then(() => {
     console.log('Connected to MongoDB');
 }).catch((err) => {

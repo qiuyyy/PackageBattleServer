@@ -80,6 +80,11 @@ module.exports = {
                 break;
             case GameConfig.ItemId.EquipBlueprintRandom:
                 // TODO: 生成装备图纸并存入
+                items = [];
+                break;
+            case GameConfig.ItemId.EquipBox_1:
+                // TODO: 生成装备并存入
+                items = [];
                 break;
             default:
                 // 背包物品 || 天赋书
@@ -179,13 +184,21 @@ module.exports = {
         return process.env.JWT_SECRET || 'fallback-secret-key'; // 设置一个密钥
     },
 
-    // 等级配置
-    loadLevelConfig() {
+    // 首字母小写
+    firstLetterToLower(str) {
+        return str.charAt(0).toLowerCase() + str.slice(1);
+    },
+
+    // 读取数据配置
+    loadCommonJsonConfig(list) {
         // 读取配置json文件
-        const data = fs.readFileSync(path.join(__dirname, '../config/Level.json'), 'utf8');
-        const config = JSON.parse(data);
-        GameConfig.levelConfig = config; // 保存
-        console.log("读取等级配置成功");
+        if (!list) list = [];
+        list.forEach(name => {
+            const data = fs.readFileSync(path.join(__dirname, `../config/${name}.json`), 'utf8');
+            const config = JSON.parse(data);
+            GameConfig[module.exports.firstLetterToLower(name) + "Config"] = config; // 保存
+            console.log(`读取${name}配置成功`);
+        })
     },
 
     // 读取武器配置json文件，并保存为易读格式

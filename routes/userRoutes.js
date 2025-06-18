@@ -22,6 +22,10 @@ router.post('/user/playerInfo', async (req, res) => {
   // user.api.missionChallengeInfo = [{task_id: 101, draw: 0, num: 1}]
   // ===============================
 
+  if (user.DrawOfflineTime == 0) {
+    user.DrawOfflineTime = Math.floor(new Date().getTime() / 1000);
+    await req.user.save();
+  }
   res.json(formatResponse({
     info: {
       ...user,
@@ -73,7 +77,7 @@ router.post('/bag/info', async (req, res) => {
 router.post('/user/useItem', async (req, res) => {
   const user = req.user.toObject();
   if (req.body.count <= 0) {
-    return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "count error"));
+    return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL"));
   }
   let items = []; // 物品列表
   if (items = !saveUserItem(req.user, req.body.itemid, - req.body.count)) {

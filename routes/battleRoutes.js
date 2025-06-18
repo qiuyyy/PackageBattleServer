@@ -45,7 +45,7 @@ router.post('/battle/sendMissBegin', async (req, res) => {
 // 战斗结束
 router.post('/battle/sendMissResult', async (req, res) => {
     const user = req.user;
-    if (req.body.battleid == user.battleInfo.battleid) { // 验证战斗ID是否一致
+    if (user.battleInfo && req.body.battleid == user.battleInfo.battleid) { // 验证战斗ID是否一致
         if (user.battleInfo.battle_type == 1) { // 普通关卡
             let oldLevel = user.Level; // 旧等级
             let reward = user.battleInfo.reward; // 奖励物品
@@ -207,6 +207,106 @@ router.post('/battle/drawchallenge', async (req, res) => {
     await user.save();
     res.json(formatResponse({
         items: req.body.Reward,
+    }));
+})
+
+// 获取扫荡信息
+router.post('/battle/offlineEarn', async (req, res) => {
+    const user = req.user;
+    if (user.DrawOfflineTime == 0) {
+        user.DrawOfflineTime = Math.floor(new Date().getTime() / 1000);
+        await user.save();
+    }
+    // 可奖励时长
+    let rewardHours = Math.floor(((new Date().getTime() / 1000) - user.DrawOfflineTime) / 3600);
+    rewardHours = Math.min(24, rewardHours); //最长24小时
+    // 根据当前通关数据获取奖励
+    let rewards = []; // 巡逻奖励
+    let fastRewards = []; //扫荡奖励
+    let config = GameConfig.trainRewardsConfig[req.user.ChapterID - 2] || {};
+    (config.other_display || []).forEach((item, index) => {
+        if (index < 5 && rewardHours > 0) {
+            rewards.push([item[0], Math.floor(item[1] / 5) * rewardHours]);
+        } 
+        fastRewards.push(item);
+    })
+
+    res.json(formatResponse({
+        kv: {
+            DrawOfflineTime: user.DrawOfflineTime,
+        },
+        rewards,
+        fastRewards,
+        show_hour_exp: config.hour_exp,
+        show_hour_gold: config.hour_gold,
+        usePower: config.stamina
+    }));
+})
+
+// 获取扫荡
+router.post('/battle/fastBattle', async (req, res) => {
+    const user = req.user;
+    let config = GameConfig.trainRewardsConfig[req.user.ChapterID - 2] || {};
+    let rewards = config.other_display || [];
+    if (req.ad) {
+        // 看广告获取
+        // 检查剩余次数
+        if (user.TodayCounts.LeftAdFastBattleCount <= 0) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+        }
+        user.TodayCounts.LeftAdFastBattleCount --;
+    } else {
+        // 检查剩余次数
+        if (user.TodayCounts.LeftPowerFastBattleCount <= 0 ) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+        }
+        // 消耗体力获取
+        if (!saveUserItem(user, GameConfig.ItemId.Power, -config.stamina)) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+        }
+        user.TodayCounts.LeftPowerFastBattleCount --;
+    }
+    // 获取奖励
+    let oldLevel = user.Level; // 旧等级
+    let rewardObj = {}; // 奖励物品对象
+    rewards.forEach(item => { 
+        let a = saveUserItem(user, item[0], item[1]);
+        a.forEach(i => {
+            if (rewardObj[i[0]]) { // 存在则增加数量
+                rewardObj[i[0]] += i[1]; // 增加数量
+            } else { // 不存在则添加
+                rewardObj[i[0]] = i[1]; // 添加
+            }
+        })
+    })
+    rewards = formatItemsToArr(rewardObj); // 奖励物品数组
+
+    // 升级检查 升级奖励
+    let lvUpReward = [];
+    for (let lv = oldLevel; lv < user.Level; lv++){
+        GameConfig.levelConfig[lv - 1].Rewards.forEach(i => {
+            saveUserItem(user, i[0], i[1])
+        });
+        lvUpReward = lvUpReward.concat(GameConfig.levelConfig[lv - 1].Rewards);
+    }
+
+    await user.save();
+
+    res.json(formatResponse({
+        LeftAdFastBattleCount: user.TodayCounts.LeftAdFastBattleCount,
+        LeftPowerFastBattleCount: user.TodayCounts.LeftPowerFastBattleCount,
+        items: rewards.concat[[GameConfig.ItemId.Power, -config.stamina]],
+        kv: {
+            Exp: user.Exp,
+            Level: user.Level,
+        },
+        levelup: {
+            LevelOld: oldLevel, // 旧等级
+            LevelNew: user.Level, // 新等级
+            Exp: user.Exp, // 经验
+            Rewards: lvUpReward, // 升级奖励
+        },
+        roleEquips: [], //装备列表
     }));
 })
 

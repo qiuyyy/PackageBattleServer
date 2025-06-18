@@ -1,4 +1,4 @@
-shell  mongosh
+
 显示所有数据库 show dbs
 切换数据库 use <数据库名>
 显示所有集合名 show collections
@@ -7,9 +7,15 @@ shell  mongosh
 更改文档 db.<集合名>.updateOne({...},{$set: {...}})
 
 启动数据库 mongod
+shell  mongosh
+使用身份验证进入shell mongosh "mongodb://adminUser001:adminPass001@localhost:27017/PackageBattleDB"
 
 例：
 删除某玩家  db.users.deleteOne({nickname:"玩家735f8543"})
 刷新每日数据 db.users.updateOne({nickname:"玩家735f8543"},{$set:{last_login_time:0}})
 某玩家修改金币数 db.users.updateOne({nickname:"玩家735f8543"},{$set:{Gold:10000}})
         (多级)  db.users.updateOne({nickname:"玩家735f8543"},{$set:{"cardlucky.luckyQuailty":10000}})
+
+
+开启pm2
+pm2 start npm --name "PackageBattleServer" -- start

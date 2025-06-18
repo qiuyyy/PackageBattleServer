@@ -63,6 +63,8 @@ const TodayCountsSchema = new mongoose.Schema({
   RereshStoreNum: { type: Number, required: true, default: 0 }, // 今日刷新商店次数
   BuyPowerVideoCount: { type: Number, required: true, default: 0 }, // 今日广告获取体力次数
   BuyPowerGemCount: { type: Number, required: true, default: 0 }, // 今日钻石购买体力次数
+  LeftPowerFastBattleCount: { type: Number, required: true, default: 3 }, // 今日使用体力进行扫荡次数
+  LeftVideoFastBattleCount: { type: Number, required: true, default: 2 }, // 今日看广告进行扫荡次数
 })
 
 const neighborUserSchema = new mongoose.Schema({
@@ -95,6 +97,7 @@ const neighborUserSchema = new mongoose.Schema({
   magicWeapon: { type: Array, default: ["M2201"] }, // 已解锁神话武器
   TodayCounts: {type: TodayCountsSchema, default: {}}, // 今日次数
   toutiaoSideBarOnce: { type: Number, default: 0 }, // 抖音侧边栏是否已领取 0-未领取 1-已领取
+  DrawOfflineTime: { type: Number, default: 0 }, // 离线奖励开始时间点（s）
 });
 
 // 根据token获取用户信息
