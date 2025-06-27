@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-const { formatResponse ,saveUserItem, checkItemIsEnough} = require('../tools/CustomUtils');
+const { formatResponse ,saveUserItem, saveUserItemList, checkItemIsEnough} = require('../tools/CustomUtils');
 const router = express.Router();
 var GameConfig = require("../tools/GameConfig");
 
@@ -80,12 +80,12 @@ router.post('/user/useItem', async (req, res) => {
     return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL"));
   }
   let items = []; // 物品列表
-  if (items = !saveUserItem(req.user, req.body.itemid, - req.body.count)) {
+  if (obj = !saveUserItem(req.user, req.body.itemid, - req.body.count)) {
     return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
   }
   
   res.json(formatResponse({
-    items,
+    ...obj,
   }));
 });
 
@@ -170,14 +170,11 @@ router.post('/talent/upgradeOneKey', async (req, res) => {
     user.TalentRight = req.body.id;
   }
   // 扣除消耗
-  let itemCost = [];
-  req.body.cost.forEach(item => { 
-    itemCost.push(saveUserItem(user, item[0], - item[1])[0]);
-  })
+  let obj = saveUserItemList(user, req.body.cost);
 
   await user.save();
   res.json(formatResponse({
-    items:itemCost,
+    ...obj,
     kv: {
       TalentLeft: user.TalentLeft,
       TalentRight: user.TalentRight

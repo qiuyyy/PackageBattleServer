@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { formatResponse, getSercetKey} = require('../tools/CustomUtils');
+const { formatResponse, getSercetKey, addEquipToUser} = require('../tools/CustomUtils');
 const jwt = require('jsonwebtoken'); // 新增jwt库
 const axios = require('axios');
 const GameConfig = require('../tools/GameConfig');
@@ -23,50 +23,9 @@ async function handleUserLogin(openid, res) {
       openid: openid,
       last_login_time: new Date().getTime(), // 更新登录时间,
       Regdate: new Date().getTime(), // 添加注册时间
-      equips: [
-        { cfgid: 2101,color_cfgid:0,id:18945860,lv: 1, star:0},
-        { cfgid: 2102,color_cfgid:0,id:18945861,lv: 1, star:0},
-        { cfgid: 2103,color_cfgid:0,id:18945862,lv: 1, star:0},
-        { cfgid: 2104,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2201,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2202,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2203,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2205,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2207,color_cfgid:0,id:18945863,lv: 1, star:0},
-      ], // 初始解锁武器
-      equip_table: [
-        {equip_id: 2101, unlock: 1},
-        {equip_id: 2102, unlock: 1},
-        {equip_id: 2103, unlock: 1},
-        {equip_id: 2104, unlock: 1},
-        // {equip_id: 2201, unlock: 1},
-        {equip_id: 2202, unlock: 1},
-      ], // 初始上阵武器
-      magicWeapon: ["M2201"], // 初始解锁神话武器
     });
+    initNewPlayerData(user);
   } else {
-    if (user.equips.length <= 0) { // 武器重置
-      user.equips = [
-        { cfgid: 2101,color_cfgid:0,id:18945860,lv: 1, star:0},
-        { cfgid: 2102,color_cfgid:0,id:18945861,lv: 1, star:0},
-        { cfgid: 2103,color_cfgid:0,id:18945862,lv: 1, star:0},
-        { cfgid: 2104,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2201,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2202,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2203,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2205,color_cfgid:0,id:18945863,lv: 1, star:0},
-        { cfgid: 2207,color_cfgid:0,id:18945863,lv: 1, star:0},
-      ];
-      user.equip_table = [
-        {equip_id: 2101, unlock: 1},
-        {equip_id: 2102, unlock: 1},
-        {equip_id: 2103, unlock: 1},
-        {equip_id: 2104, unlock: 1},
-        // {equip_id: 2201, unlock: 1},
-        {equip_id: 2202, unlock: 1},
-      ];
-    }
-
     previousLoginTime = user.last_login_time; // 保存上次登录时间
     user.last_login_time = new Date().getTime(); // 更新为本次登录时间
     // 计算体力恢复
@@ -87,6 +46,60 @@ async function handleUserLogin(openid, res) {
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); // 获取今天零点的时间戳
   if (!previousLoginTime || previousLoginTime < todayStart) { // 今天首次登录
+    updateDailyData(user);
+  }
+  await user.save();
+
+  // 初始化新用户的数据
+  function initNewPlayerData(user) {
+    // 初始解锁武器
+    user.equips = [
+        { cfgid: 2101,color_cfgid:0,id:18945860,lv: 1, star:0},
+        { cfgid: 2102,color_cfgid:0,id:18945861,lv: 1, star:0},
+        { cfgid: 2103,color_cfgid:0,id:18945862,lv: 1, star:0},
+        { cfgid: 2104,color_cfgid:0,id:18945863,lv: 1, star:0},
+        { cfgid: 2201,color_cfgid:0,id:18945863,lv: 1, star:0},
+        { cfgid: 2202,color_cfgid:0,id:18945863,lv: 1, star:0},
+        { cfgid: 2203,color_cfgid:0,id:18945863,lv: 1, star:0},
+        { cfgid: 2205,color_cfgid:0,id:18945863,lv: 1, star:0},
+        { cfgid: 2207,color_cfgid:0,id:18945863,lv: 1, star:0},
+      ];
+    // 初始上阵武器
+    user.equip_table = [
+        {equip_id: 2101, unlock: 1},
+        {equip_id: 2102, unlock: 1},
+        {equip_id: 2103, unlock: 1},
+        {equip_id: 2104, unlock: 1},
+        // {equip_id: 2201, unlock: 1},
+        {equip_id: 2202, unlock: 1},
+      ];
+    // 初始解锁神话武器
+    user.magicWeapon = ["M2201"]; 
+    // 初始穿戴装备
+    addEquipToUser(user, [101011, 201011, 301011, 401011, 501011, 601011]);
+    user.Gear = {
+      Gear1: "",
+      Gear2: "",
+      Gear3: "",
+      Gear4: "",
+      Gear5: "",
+      Gear6: "",
+      Part1Lv: 0,
+      Part2Lv: 0,
+      Part3Lv: 0,
+      Part4Lv: 0,
+      Part5Lv: 0,
+      Part6Lv: 0,
+      Plan: 1
+    }
+    user.RoleEquips.forEach((equip, index) => {
+      user.Gear['Gear' + (index + 1)] = equip.Id;
+    })
+    return user;
+  }
+
+  // 更新每日刷新的数据
+  function updateDailyData(user) {
     // 重置每日商店
     user.api.dailyStore = [
       {Count: 10, Discount: 10, Id: 1, ItemId: 1, Left: 2, Price: 1, PriceType: 0, PriceType2: "2,1", Time: 0, priceType2List: [2, 1]},
@@ -101,8 +114,8 @@ async function handleUserLogin(openid, res) {
       LeftPowerFastBattleCount: GameConfig.offlineDayPowerCount,
       LeftAdFastBattleCount: GameConfig.offlineDayAdCount,
     };
+    return user;
   }
-  await user.save();
 
   // 生成token
   const token = jwt.sign(

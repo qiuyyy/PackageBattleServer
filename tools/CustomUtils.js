@@ -25,12 +25,22 @@ module.exports = {
         return true;
     },
 
-    // 检查物品是否足够并扣除物品 num:变化数量 return: 扣除的物品列表 [[itemId, num]]
+    //存入/扣除物品 检查物品是否足够并扣除物品 num:变化数量
+    /**
+     * @param {*} user 
+     * @param {*} itemId 物品id
+     * @param {*} num 数量
+     * @returns {
+     * items: 物品[[itemId, num]],
+     * roleEquips: 装备 [{RoleEquipSchema}]
+     * levelup：升级信息 {LevelOld-旧等级, LevelNew-新等级, Exp-经验, Rewards-升级奖励}
+     * }
+     */
     saveUserItem(user, itemId, num) {
         console.log("=============saveUserItem", itemId, num)
         itemId = parseInt(itemId);
         itemNum = parseInt(num);
-        let items = [[itemId, num]];
+        let obj = {items: [[itemId, num]]}; // 获得列表
         switch (itemId) {
             case GameConfig.ItemId.Gold:
                 if (user.Gold + num < 0) return false;
@@ -53,10 +63,19 @@ module.exports = {
             case GameConfig.ItemId.Exp:
                 if (user.Exp + num < 0) return false;
                 user.Exp += num;
+                let oldLevel = user.Level;
                 // 检查是否升级
+                let lvUpReward = []; // 升级奖励
                 while (user.Exp >= GameConfig.levelConfig[user.Level - 1].exp) { // 升级
                     user.Exp -= GameConfig.levelConfig[user.Level - 1].exp; // 扣除经验
+                    lvUpReward = module.exports.pushItemsToList(lvUpReward, GameConfig.levelConfig[user.Level - 1].Rewards);
                     user.Level += 1; // 增加等级
+                }
+                obj.levelup = {
+                    LevelOld: oldLevel, // 旧等级
+                    LevelNew: user.Level, // 新等级
+                    Exp: user.Exp, // 经验
+                    Rewards: module.exports.saveUserItemList(user, lvUpReward).items || [] // 升级奖励
                 }
                 break;
             case GameConfig.ItemId.Energy:
@@ -65,7 +84,7 @@ module.exports = {
                 break;
             case GameConfig.ItemId.WeaponBlueprintRandom:
                 const blueprints = module.exports.getRandomWeaponBlueprint(num); // 生成武器图纸并存入
-                items = blueprints;
+                obj.items = blueprints;
                 blueprints.forEach(element => {
                     const id = element[0];
                     const count = element[1];
@@ -80,11 +99,11 @@ module.exports = {
                 break;
             case GameConfig.ItemId.EquipBlueprintRandom:
                 // TODO: 生成装备图纸并存入
-                items = [];
+                obj.items = [];
                 break;
             case GameConfig.ItemId.EquipBox_1:
                 // TODO: 生成装备并存入
-                items = [];
+                obj.items = [];
                 break;
             default:
                 // 背包物品 || 天赋书
@@ -98,7 +117,60 @@ module.exports = {
                 }
                 break;
         }
-        return items;
+        return obj;
+    },
+
+    // 存储物品列表
+    saveUserItemList(user, list) {
+        let obj = {};
+        list.forEach(element => {
+            const itemId = element[0];
+            const num = element[1];
+            let resObj = module.exports.saveUserItem(user, itemId, num);
+            if (resObj.items) {
+                obj.items = module.exports.pushItemsToList(obj.items, resObj.items);
+            }
+            if (resObj.roleEquips) {
+                obj.roleEquips = (obj.roleEquips || []).concat(resObj.roleEquips)
+            }
+            if (resObj.levelup) {
+                obj.levelup = resObj.levelup;
+            }
+        })
+        return obj;
+    },
+
+    // 添加装备
+    addEquipToUser(user, equipIds) {
+        for (let i = 0; i < equipIds.length; i++) {
+            const equipId = equipIds[i];
+            user.RoleEquips.push({
+                Cfg: equipId,
+                DecomNum: 1,
+                ExtraAttrs: [],
+                PreviewExtraAttrs: [],
+                Qcost: 0,
+            });
+        }
+    },
+
+    // 向一个item格式([[id, num]])列表添加物品 mult-倍数
+    pushItemsToList(list, pushList, mult) {
+        mult = mult || 1;
+        list = list || [];
+        pushList = pushList || [];
+        let obj = module.exports.formatItemsToObj(list);
+        pushList.forEach(element => {
+            const id = element[0];
+            const count = element[1];
+            if (obj[id]) {
+                obj[id] += count * mult; // 增加数量 
+            } else {
+                // 新增物品
+                obj[id] = count * mult; 
+            }
+        })
+        return module.exports.formatItemsToArr(obj);
     },
 
     // 物品数据格式转换 [[itemId, num]] => {itemId: num}

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough } = require('../tools/CustomUtils');
+const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough, pushItemsToList } = require('../tools/CustomUtils');
 var GameConfig = require("../tools/GameConfig");
 
 //=======================每日商店=======================
@@ -86,15 +86,14 @@ router.post('/shop/dailyStoreBuy', async (req, res) => {
         // 扣除剩余
         item.Left--;
         // 获得物品
-        let items = saveUserItem(user, item.ItemId, item.Count);
+        let obj = saveUserItem(user, item.ItemId, item.Count);
         await user.save();
         // 返回数据
         if (costId) { // 消耗物品
-            items.push([costId, -item.Price]);
+            obj = pushItemsToList(obj.items,items.push([costId, -item.Price]));
         }
         res.json(formatResponse({
-            items,
-            // original: [user.Diamond, user.Gold, user.Power]
+            ...obj
         }));
     } catch (err) {
         res.status(500).json({ errcode: 1, message: 'Server error' + err });

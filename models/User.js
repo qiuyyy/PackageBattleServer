@@ -67,8 +67,41 @@ const TodayCountsSchema = new mongoose.Schema({
   LeftVideoFastBattleCount: { type: Number, required: true, default: 2 }, // 今日看广告进行扫荡次数
 })
 
+// 玩家装备
+const RoleEquipSchema = new mongoose.Schema({
+  Id: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    unique: true, 
+    required: true,
+    default: function() {
+      return new mongoose.Types.ObjectId(); // 使用 new 关键字生成 ObjectId
+    }
+  }, // 装备唯一 ID
+  Cfg: { type: Number, default: 0 }, // 配置 ID
+  DecomNum: { type: Number, default: 0 }, // 可分解数量
+  PreviewExtraAttrs: { type: Array, default: []},
+  ExtraAttrs: { type: Array, default: []},
+  Qcost: { type: Number, default: 0 }, // 升品消耗的材料
+}, { _id: false }); // 禁用自动生成 _id 字段
+
+// 装备穿戴信息
+const GearSchema = new mongoose.Schema({
+  Gear1:{ type: String, default: "" }, //部位1穿戴装备id
+  Gear2:{ type: String, default: "" },
+  Gear3:{ type: String, default: "" },
+  Gear4:{ type: String, default: "" },
+  Gear5:{ type: String, default: "" },
+  Gear6:{ type: String, default: "" },
+  Part1Lv: { type: Number, default: 0 }, //部位1装备等级
+  Part2Lv: { type: Number, default: 0 },
+  Part3Lv: { type: Number, default: 0 },
+  Part4Lv: { type: Number, default: 0 },
+  Part5Lv: { type: Number, default: 0 },
+  Part6Lv: { type: Number, default: 0 },
+  Plan: { type: Number, default: 1 }, //使用的镶嵌方案
+})
+
 const neighborUserSchema = new mongoose.Schema({
-  // Userid: { type: String, required: true, unique: true ,index: true}, // 用户ID
   openid: { type: String, required: true, unique: true ,index: true}, // 用户唯一标识
   last_login_time: { type: Number, default: Date.now }, // 上次登录时间
   nickname: { type: String, default: '' }, // 用户昵称
@@ -91,13 +124,14 @@ const neighborUserSchema = new mongoose.Schema({
   TalentLeft: { type: Number, default: 1000 }, // 左侧天赋解锁id
   TalentRight: { type: Number, default: 2000 }, // 右侧天赋解锁id
   function_open: { type: Array, default: [] }, // 已功能开放
-  Gear: { type: Array, default: [] }, // TODO: 啥东西
+  Gear: { type: GearSchema, default:{} }, // 装备信息
   battleInfo: { type: battleInfoSchema, }, // 进行中战斗信息
   cardlucky: { type: cardluckySchema, default: {curLuckyNum: 0, totalLuckyNum: 5, luckyQuality: 3, lucky_rewards: [], draw_reward_idx: [], rate: 0, refresh_time: 0}}, // 武器祈愿
-  magicWeapon: { type: Array, default: ["M2201"] }, // 已解锁神话武器
+  magicWeapon: { type: Array, default: [] }, // 已解锁神话武器
   TodayCounts: {type: TodayCountsSchema, default: {}}, // 今日次数
   toutiaoSideBarOnce: { type: Number, default: 0 }, // 抖音侧边栏是否已领取 0-未领取 1-已领取
   DrawOfflineTime: { type: Number, default: 0 }, // 离线奖励开始时间点（s）
+  RoleEquips: {type: [RoleEquipSchema], default: []}, // 武器
 });
 
 // 根据token获取用户信息

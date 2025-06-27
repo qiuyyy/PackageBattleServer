@@ -10,11 +10,11 @@ router.post('/user/drawSideBarReward', async (req, res) => {
         if (user.toutiaoSideBarOnce === 1) { // 已领取
             return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
         }
-        let items = saveUserItem(user, GameConfig.ItemId.Diamond, 100);
+        let obj = saveUserItem(user, GameConfig.ItemId.Diamond, 100);
         user.toutiaoSideBarOnce = 1; // 已领取
         await user.save();
         res.json(formatResponse({
-            items,
+            ...obj,
         }));
     } catch (err) {
         res.status(500).json({ errcode: 1, message: 'Server error' + err });
