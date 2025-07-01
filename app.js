@@ -79,7 +79,7 @@ app.get('/', function(req, res) {
 })
 
 loadWeaponConfig();
-loadCommonJsonConfig(["Level","TrainRewards"]);
+loadCommonJsonConfig(["Level","TrainRewards","RoleEquipUpgrade"]);
 
 // 监听端口
 const PORT = 3000;

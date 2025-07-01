@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough } = require('../tools/CustomUtils');
+const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough, saveUserItemList, pushItemsToList, getConfigData, getRandomEquipExtraAttr } = require('../tools/CustomUtils');
 const jwt = require('jsonwebtoken'); // 新增jwt库
 var GameConfig = require("../tools/GameConfig");
 
@@ -234,6 +234,180 @@ router.post('/cardlucky/start', async (req, res) => {
         }
     }));
 });
+
+// 装备替换
+router.post('/role_equip/wear', async (req, res) => {
+    const user = req.user;
+    const equipId = req.body.id;
+    const equip = user.RoleEquips.find(e => e.Id == equipId);
+    if (!equip) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "装备不存在"));
+    }
+    user.Gear["Gear" + getEquipPartById(equip.Cfg)] = equipId;
+    await user.save();
+    res.json(formatResponse({
+        Gear: user.Gear
+    }));
+});
+
+// 装备升品
+router.post('/role_equip/upQuality', async (req, res) => {
+    const user = req.user;
+    const id = req.body.id;
+    let equip = user.RoleEquips.find(e => e.Id == id);
+    let equipCfg = getConfigData("RoleEquip").find(e => e.Id == equip.Cfg);
+    let cost = equipCfg.QualityUpCost;
+    if (!equip) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "装备不存在"));
+    }
+    // 消耗
+    if (!checkItemIsEnough(user, cost)){
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+    }
+    cost = cost.map(e => [e[0], -e[1]]);
+    let resultList = saveUserItemList(user, cost);
+    // 升品
+    equip.Qcost -= cost[0][1]
+    equip.Cfg = getConfigData("RoleEquip").find(e => {
+        if (e.Quality == equipCfg.Quality
+            && e.Type == equipCfg.Type
+            && ((e.ColorQuality == equipCfg.ColorQuality && e.NameQuality == equipCfg.NameQuality + 1) || (e.ColorQuality == equipCfg.ColorQuality + 1 && e.NameQuality == 1))
+        ) {
+            return e;
+        }
+    }).Id;
+    await user.save();
+    res.json(formatResponse({
+        ...resultList,
+        RoleEquip: equip
+    }));
+});
+
+// 装备分解
+router.post('/role_equip/decompose', async (req, res) => {
+    const user = req.user;
+    const ids = req.body.ids;
+    let getItems = []; //分解后得到的物品
+
+    ids.forEach(id => {
+        let equip = user.RoleEquips.find(e => e.Id == id);
+        getItems = pushItemsToList(getItems, [[133, Math.ceil(equip.Qcost * 0.7) + equip.DecomNum]])
+    })
+    // 获得
+    let resultList = saveUserItemList(user, getItems);
+    // 装备销毁
+    user.RoleEquips = user.RoleEquips.filter(e => !ids.some(id => id == e.Id));
+    await user.save();
+    res.json(formatResponse({
+        ...resultList,
+    }));
+});
+
+
+// 部位强化
+router.post('/gear/upgrade', async (req, res) => {
+    const user = req.user;
+    const part = req.body.part;
+    // 消耗
+    let config = GameConfig.roleEquipUpgradeConfig.find(e => e.Level == user.Gear[`Part${part}Lv`]);
+    if (!config) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "无法升级"));
+    }
+    let cost = [[getEquipPrintIdByPart(part), config.PrintCount]].concat(config.Cost);
+    if (!checkItemIsEnough(user, cost)){
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+    }
+    cost = cost.map(e => [e[0], -e[1]]);
+    let resultList = saveUserItemList(user, cost);
+    // 升级
+    user.Gear[`Part${part}Lv`] ++;
+    await user.save();
+    res.json(formatResponse({
+        ...resultList,
+        Gear: user.Gear
+    }));
+});
+
+// 部位一键强化
+router.post('/gear/batchUpgrade', async (req, res) => {
+    // 按部位顺序 升到最大值 再继续下一部位
+    const user = req.user;
+    let resultList = [];
+    for (let part = 1; part <= 6; part ++) {
+        // 消耗
+        while(true) {
+            let config = GameConfig.roleEquipUpgradeConfig.find(e => e.Level == user.Gear[`Part${part}Lv`]);
+            if (!config || config.PrintCount == 0) {
+                // 无法升级
+                break;
+            }
+            let cost = [[getEquipPrintIdByPart(part), config.PrintCount]].concat(config.Cost);
+            if (!checkItemIsEnough(user, cost)){
+                // 材料不足
+                break;
+            }
+            cost = cost.map(e => [e[0], -e[1]]);
+            resultList = pushItemsToList(resultList, cost);
+            // 升级
+            user.Gear[`Part${part}Lv`] ++;
+        }
+    }
+    await user.save();
+    res.json(formatResponse({
+        ...resultList,
+        Gear: user.Gear
+    }));
+});
+
+// 装备洗练
+router.post('/role_equip/refine', async (req, res) => {
+    const user = req.user;
+    const id = req.body.id;
+    let equip = user.RoleEquips.find(e => e.Id == id);
+    let cost = getConfigData("RoleEquip").find(e => e.Id == equip.Cfg).RefineCost;
+    // 消耗
+    if (!checkItemIsEnough(user, cost)){
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+    }
+    cost = cost.map(e => [e[0], -e[1]]);
+    let resultList = saveUserItemList(user, cost);
+    // 存储锻造石消耗
+    equip.Qcost -= cost[0][1];
+    // 洗练
+    let newAttr = getRandomEquipExtraAttr(equip.Cfg);
+    equip.PreviewExtraAttrs = newAttr;
+    await user.save();
+    res.json(formatResponse({
+        ...resultList,
+        RoleEquip: equip
+    }));
+});
+
+// 装备保存洗练属性
+router.post('/role_equip/saveRefine', async (req, res) => {
+    const user = req.user;
+    const id = req.body.id;
+    let equip = user.RoleEquips.find(e => e.Id == id);
+    // 保存洗练属性
+    equip.ExtraAttrs = equip.PreviewExtraAttrs;
+    equip.PreviewExtraAttrs = [];
+    await user.save();
+    res.json(formatResponse({
+        RoleEquip: equip
+    }));
+});
+
+// 根据装备id获取装备部位
+getEquipPartById = function(equipId) {
+    let part = Number((equipId+'')[0]);
+    return part;
+};
+
+// 根据装备部位获取图纸id
+getEquipPrintIdByPart = function(part) {
+    let id = 126 + part;
+    return id;
+};
 
 
 module.exports = router;

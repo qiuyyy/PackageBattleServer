@@ -8,19 +8,7 @@ router.post('/battle/sendMissBegin', async (req, res) => {
     // 保存进行中战斗信息
     const user = req.user;
     const battleId = Math.floor(100000 + Math.random() * 900000); // 生成六位随机数
-    let randomReward = []; // 随机奖励
-    // 随机奖励生成并保存
-    req.body.reward = req.body.reward.filter(item => {
-        if (item[0] == GameConfig.ItemId.WeaponBlueprintRandom) { // 武器随机图纸
-            randomReward = getRandomWeaponBlueprint(item[1]); // 生成随机武器图纸
-            return false;
-        } else if (item[0] == GameConfig.ItemId.EquipBlueprintRandom) { // 装备随机图纸
-            // TODO: 生成随机装备图纸
-            return false;
-        }
-        return true;
-    })
-    req.body.reward = req.body.reward.concat(randomReward);
+    
 
     // 保存战斗信息
     user.battleInfo = {
@@ -53,13 +41,7 @@ router.post('/battle/sendMissResult', async (req, res) => {
                 if (user.ChapterID == 1) {
                     // 首次通过第一关 用于新手教学
                     // 增加奖励扳手图纸x10 增加金币x100
-                    reward.push([3101, 10]);
-                    reward = reward.map(item => {
-                        if (item[0] == GameConfig.ItemId.Gold) { // 增加金币
-                            item[1] += 100; // 增加金币
-                        }
-                        return item;
-                    })
+                    reward = pushItemsToList(reward, [[3101, 10],[GameConfig.ItemId.Gold, 100]]);
                 }
                 // 保存战斗信息
                 user.ChapterID = Math.max(user.battleInfo.configId + 1, user.ChapterID); // 保存通关章节
@@ -202,7 +184,7 @@ router.post('/battle/fastBattle', async (req, res) => {
     const user = req.user;
     let config = GameConfig.trainRewardsConfig[req.user.ChapterID - 2] || {};
     let rewards = config.other_display || [];
-    if (req.ad) {
+    if (req.body.ad) {
         // 看广告获取
         // 检查剩余次数
         if (user.TodayCounts.LeftAdFastBattleCount <= 0) {

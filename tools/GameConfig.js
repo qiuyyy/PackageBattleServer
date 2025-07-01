@@ -1,17 +1,4 @@
 module.exports = {
-    // 上阵武器格解锁条件 {通关关卡解锁}
-    equipTableUnlockCondition : {
-        "0": {chapterId: 0},
-        "1": {chapterId: 0},
-        "2": {chapterId: 0},
-        "3": {chapterId: 0},
-        "4": {chapterId: 0},
-        "5": {chapterId: 0},
-        "6": {chapterId: 2},
-        "7": {chapterId: 4},
-        "8": {chapterId: 6},
-    },
-
     // 通讯code
     NetCode : {
         FAIL: -1,
@@ -47,17 +34,16 @@ module.exports = {
         Energy: 6000,
         WeaponBlueprintRandom: 110, //随机武器图纸
         EquipBlueprintRandom: 137, //随机装备图纸
-        EquipBox_1: 501, //1阶关卡装备宝箱
     },
-
-
-    // 体力相关
+    
+    /**=========================体力相关 */ 
     adGetPowerCount: 5, //广告获取数量
     gemGetPowerCount: 15, //购买获取数量
     gemGetPowerCost: 30, // 钻石购买体力消耗
     battlePowerCost: 5, //战斗体力消耗
     POWER_RECOVERY_CD: 1200, // 恢复1体力cd（同前端一致）
 
+    /**=========================武器相关 */
     // 武器品质
     weaponQuality: {
         QUALITY_1: 3, // 优秀
@@ -80,9 +66,31 @@ module.exports = {
         6: 0,
     }, // 武器祈愿奖励品质概率 百分率
 
-    levelConfig:{}, // 等级配置
+    /**=========================装备相关 */
+    equipBoxIdLimit: [501, 664], //装备宝箱id范围
+    equipBoxData: { // 装备宝箱信息(同item表) phase-品阶 maxColorQuailty-最高品质
+        // TODO: 后续还要增加
+        501: {phase: 1, maxColorQuailty: 3},
+        551: {phase: 1, maxColorQuailty: 3},
+    },
+    equipColorQualityProb: { // 随机装备品质概率 百分率
+        1: 50,
+        2: 23,
+        3: 10,
+        4: 8,
+        5: 5,
+        6: 3,
+        7: 1,
+    },
+    equipAttrCountProb: { // 装备属性个数概率
+        1: 7, 
+        2: 2, 
+        3: 1
+    },
 
-    /**离线相关 */
+    levelConfig:{}, // 玩家等级配置
+
+    /**=========================离线相关 */
     offlineDayAdCount: 2, //每天扫荡广告获取次数
     offlineDayPowerCount: 3, //每天扫荡体力获取次数
 }
