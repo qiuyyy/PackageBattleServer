@@ -21,7 +21,26 @@ module.exports = {
             let num = item[1]; // 数量 
             if (num > 0) num = -num;
             let bagItem = user.api.bagInfo.find(item => item.Itemid == itemId); // 查找背包物品
-            if (!bagItem || bagItem.Num + num < 0) return false; // 数量不足
+            if (bagItem) {
+                //背包物品 
+                if (bagItem.Num + num < 0) return false; // 数量不足
+            } else {
+                // 非背包物品
+                switch (itemId) {
+                    case GameConfig.ItemId.Gold:
+                        if (user.Gold + num < 0) return false;
+                        break;
+                    case GameConfig.ItemId.Diamond:
+                        if (user.Diamond + num < 0) return false;
+                        break;
+                    case GameConfig.ItemId.Power:
+                        if (user.Power + num < 0) return false;
+                        break;
+                    default:
+                        return false;
+                        break;
+                }
+            }
         }
         return true;
     },
@@ -44,9 +63,15 @@ module.exports = {
         let obj = {items: [[itemId, num]]}; // 获得列表
         if (itemId == GameConfig.ItemId.Gold) {
             if (user.Gold + num < 0) return false;
+            if (num > 0) {
+                module.exports.achieveTaskRecord(user, GameConfig.TaskType.GetGold, num);
+            }
             user.Gold += num;
         } else if (itemId == GameConfig.ItemId.Diamond) {
             if (user.Diamond + num < 0) return false;
+            if (num < 0) {
+                module.exports.achieveTaskRecord(user, GameConfig.TaskType.CostGem, -num);
+            }
             user.Diamond += num;
         } else if (itemId == GameConfig.ItemId.Power) {
             if (user.Power + num < 0) return false;
@@ -67,6 +92,7 @@ module.exports = {
                 user.Exp -= GameConfig.levelConfig[user.Level - 1].exp; // 扣除经验
                 lvUpReward = module.exports.pushItemsToList(lvUpReward, GameConfig.levelConfig[user.Level - 1].Rewards);
                 user.Level += 1; // 增加等级
+                module.exports.achieveTaskRecord(user, GameConfig.TaskType.LevelReach);
             }
             obj.levelup = {
                 LevelOld: oldLevel, // 旧等级
@@ -343,6 +369,32 @@ module.exports = {
         return arr;
     },
 
+    // 任务达成记录 taskType-任务类型:GameConfig.TaskType
+    achieveTaskRecord(user, taskType, num) {
+        if (num == null) num = 1;
+        // 日常任务
+        let dailyData = module.exports.getConfigData("RoutineTask").filter(item => item.DailyType == taskType); // 找出该任务类型的任务
+        user.DailyTask.daily.forEach(task => {
+            dailyData.forEach(data => {
+                if (task.task_id == data.Id) {
+                    task.num += num;
+                }
+            })
+        });
+        // 周常任务
+        let weeklyData = module.exports.getConfigData("WeeklyTask").filter(item => item.WeeklyType == taskType); // 找出该任务类型的任务
+        user.WeeklyTask.weekly.forEach(task => {
+            weeklyData.forEach(data => {
+                if (task.task_id == data.ID) {
+                    task.num += num;
+                }
+            })
+        });
+        // 成就
+        user.Achievement.userInfo[taskType] != null && (user.Achievement.userInfo[taskType] += num);
+        return user;
+    },
+
     // 获取密钥
     getSercetKey() {
         return process.env.JWT_SECRET || 'fallback-secret-key'; // 设置一个密钥
@@ -358,6 +410,18 @@ module.exports = {
         charCount = charCount || 2;
         if (!num && num != 0) return 0;
         return num.toString().padStart(charCount, '0');
+    },
+
+    // 判断时间戳是否为今日时间
+    checkIsToday (time) {
+        let now = new Date();
+        let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        let timestamp = time * 1000;
+        let date = new Date(timestamp);
+        if (date.getFullYear() == today.getFullYear() && date.getMonth() == today.getMonth() && date.getDate() == today.getDate()) {
+            return true;
+        }
+        return false;
     },
 
     // 读取数据配置

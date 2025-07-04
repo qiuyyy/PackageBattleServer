@@ -1,0 +1,72 @@
+[
+  {
+    "ID": 1,
+    "Requirements": 20,
+    "FixReward": [
+      [
+        2,
+        50
+      ],
+      [
+        110,
+        20
+      ]
+    ]
+  },
+  {
+    "ID": 2,
+    "Requirements": 40,
+    "FixReward": [
+      [
+        2,
+        50
+      ],
+      [
+        6,
+        10
+      ]
+    ]
+  },
+  {
+    "ID": 3,
+    "Requirements": 60,
+    "FixReward": [
+      [
+        2,
+        100
+      ],
+      [
+        3,
+        1
+      ]
+    ]
+  },
+  {
+    "ID": 4,
+    "Requirements": 80,
+    "FixReward": [
+      [
+        2,
+        100
+      ],
+      [
+        1,
+        30
+      ]
+    ]
+  },
+  {
+    "ID": 5,
+    "Requirements": 100,
+    "FixReward": [
+      [
+        2,
+        500
+      ],
+      [
+        109,
+        3
+      ]
+    ]
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "ID": 1,
+    "WeeklyType": 1,
+    "AccumulationType": 1,
+    "WeeklyNeed": 5,
+    "WeeklyDescribe": "累积登录{0}天",
+    "LanDesc": 375,
+    "WeeklyActiveReward": 20,
+    "Jump": 5,
+    "UnlockNeed": 4
+  },
+  {
+    "ID": 2,
+    "WeeklyType": 10,
+    "AccumulationType": 1,
+    "WeeklyNeed": 2000,
+    "WeeklyDescribe": "击败怪物{0}个",
+    "LanDesc": 376,
+    "WeeklyActiveReward": 20,
+    "Jump": 1,
+    "UnlockNeed": 0
+  },
+  {
+    "ID": 3,
+    "WeeklyType": 9,
+    "AccumulationType": 1,
+    "WeeklyNeed": 50,
+    "WeeklyDescribe": "击败首领{0}个",
+    "LanDesc": 377,
+    "WeeklyActiveReward": 20,
+    "Jump": 1,
+    "UnlockNeed": 0
+  },
+  {
+    "ID": 4,
+    "WeeklyType": 24,
+    "AccumulationType": 1,
+    "WeeklyNeed": 3,
+    "WeeklyDescribe": "每日商店购买物品{0}次",
+    "LanDesc": 378,
+    "WeeklyActiveReward": 20,
+    "Jump": 3,
+    "UnlockNeed": 8
+  },
+  {
+    "ID": 5,
+    "WeeklyType": 7,
+    "AccumulationType": 1,
+    "WeeklyNeed": 30,
+    "WeeklyDescribe": "快速扫荡{0}次",
+    "LanDesc": 379,
+    "WeeklyActiveReward": 20,
+    "Jump": 6,
+    "UnlockNeed": 9
+  },
+  {
+    "ID": 6,
+    "WeeklyType": 13,
+    "AccumulationType": 1,
+    "WeeklyNeed": 20,
+    "WeeklyDescribe": "武器祈愿{0}次",
+    "LanDesc": 380,
+    "WeeklyActiveReward": 20,
+    "Jump": 3,
+    "UnlockNeed": 3
+  }
+]

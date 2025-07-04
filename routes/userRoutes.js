@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-const { formatResponse ,saveUserItem, saveUserItemList, checkItemIsEnough} = require('../tools/CustomUtils');
+const { formatResponse ,saveUserItem, saveUserItemList, checkItemIsEnough,achieveTaskRecord} = require('../tools/CustomUtils');
 const router = express.Router();
 var GameConfig = require("../tools/GameConfig");
 
@@ -117,6 +117,7 @@ router.post('/user/buyPower', async (req, res) => {
     user.TodayCounts.BuyPowerVideoCount += 1;
     saveUserItem(user, GameConfig.ItemId.Power, GameConfig.adGetPowerCount)
   }
+  achieveTaskRecord(user, GameConfig.TaskType.BuyOrAdGetPower);
   await user.save();
   res.json(formatResponse({
     items:[
@@ -138,6 +139,7 @@ router.post('/talent/upgrade', async (req, res) => {
   }
   if (req.body.id < 2000) { // 普通天赋
     user.TalentLeft = req.body.id;
+    achieveTaskRecord(user, GameConfig.TaskType.UnlockCommonTalent);
   } else { // 特殊天赋
     user.TalentRight = req.body.id;
   }

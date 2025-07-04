@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough, pushItemsToList } = require('../tools/CustomUtils');
+const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough, pushItemsToList,achieveTaskRecord, saveUserItemList } = require('../tools/CustomUtils');
 var GameConfig = require("../tools/GameConfig");
 
 //=======================每日商店=======================
@@ -63,17 +63,17 @@ router.post('/shop/dailyStoreBuy', async (req, res) => {
     try {
         let item = user.api.dailyStore.find(e => e.Id === req.body.Id); // 商品
         let costId = 0;
-        // 扣除消耗
+        // 检查消耗
         if (item.priceType2List[item.priceType2List.length - item.Left] == 0) {
             // 消耗钻石
             costId = GameConfig.ItemId.Diamond;
-            if (!saveUserItem(user, GameConfig.ItemId.Diamond, - item.Price)) {
+            if (!checkItemIsEnough(user, [[GameConfig.ItemId.Diamond, - item.Price]])) {
                 return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
             }
         } else if (item.priceType2List[item.priceType2List.length - item.Left] == 3) {
             // 消耗金币
             costId = GameConfig.ItemId.Gold;
-            if (!saveUserItem(user, GameConfig.ItemId.Gold, - item.Price)) {
+            if (!checkItemIsEnough(user, [[GameConfig.ItemId.Gold, - item.Price]])) {
                 return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
             }
         }
@@ -85,13 +85,11 @@ router.post('/shop/dailyStoreBuy', async (req, res) => {
         }
         // 扣除剩余
         item.Left--;
-        // 获得物品
-        let obj = saveUserItem(user, item.ItemId, item.Count);
+        // 获得并扣除物品
+        let items = [[item.ItemId, item.Count], [costId, -item.Price]];
+        let obj = saveUserItemList(user, items);
+        achieveTaskRecord(user, GameConfig.TaskType.DailyShopBuy);
         await user.save();
-        // 返回数据
-        if (costId) { // 消耗物品
-            obj = pushItemsToList(obj.items,items.push([costId, -item.Price]));
-        }
         res.json(formatResponse({
             ...obj
         }));

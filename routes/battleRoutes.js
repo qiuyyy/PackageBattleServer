@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { formatResponse, saveUserItem, saveUserItemList, getRandomWeaponBlueprint, formatItemsToObj, formatItemsToArr,pushItemsToList } = require('../tools/CustomUtils');
+const { formatResponse, saveUserItem, saveUserItemList, getRandomWeaponBlueprint, formatItemsToObj, formatItemsToArr,pushItemsToList ,achieveTaskRecord} = require('../tools/CustomUtils');
 const GameConfig = require('../tools/GameConfig');
 
 // 开始战斗
@@ -19,6 +19,7 @@ router.post('/battle/sendMissBegin', async (req, res) => {
     if (!saveUserItem(user, GameConfig.ItemId.Power, - GameConfig.battlePowerCost)) {
         return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
     }
+    achieveTaskRecord(user, GameConfig.TaskType.MissionPaicipation);
     await user.save();
     res.json(formatResponse({
         battleid: battleId,
@@ -33,6 +34,8 @@ router.post('/battle/sendMissBegin', async (req, res) => {
 // 战斗结束
 router.post('/battle/sendMissResult', async (req, res) => {
     const user = req.user;
+    achieveTaskRecord(user, GameConfig.TaskType.KillEnemy, req.body.pkg.killEnemy);
+    achieveTaskRecord(user, GameConfig.TaskType.KillBoss, req.body.pkg.killBoss);
     if (user.battleInfo && req.body.battleid == user.battleInfo.battleid) { // 验证战斗ID是否一致
         if (user.battleInfo.battle_type == 1) { // 普通关卡
             let oldLevel = user.Level; // 旧等级
@@ -46,6 +49,9 @@ router.post('/battle/sendMissResult', async (req, res) => {
                 // 保存战斗信息
                 user.ChapterID = Math.max(user.battleInfo.configId + 1, user.ChapterID); // 保存通关章节
                 user.ChapterWaveId = 0; // 保存通关波次
+                if (user.ChapterID == user.battleInfo.configId + 1) {
+                    achieveTaskRecord(user, GameConfig.TaskType.MissionOverReach);
+                }
             } else { // 战斗失败
                 reward = [];
                 // 保存战斗信息
@@ -179,7 +185,19 @@ router.post('/battle/offlineEarn', async (req, res) => {
     }));
 })
 
-// 获取扫荡
+// 获取巡逻奖励
+router.post('/battle/drawOfflineEarn', async (req, res) => {
+    const user = req.user;
+    
+    // 获取奖励
+    achieveTaskRecord(user, GameConfig.TaskType.GetOfflineReward);
+    await user.save();
+
+    res.json(formatResponse({
+        
+    }));
+})
+// 获取扫荡奖励
 router.post('/battle/fastBattle', async (req, res) => {
     const user = req.user;
     let config = GameConfig.trainRewardsConfig[req.user.ChapterID - 2] || {};
@@ -204,7 +222,7 @@ router.post('/battle/fastBattle', async (req, res) => {
     }
     // 获取奖励
     let returnList = saveUserItemList(user, rewards);
-
+    achieveTaskRecord(user, GameConfig.TaskType.FastBattle);
     await user.save();
 
     res.json(formatResponse({

@@ -1,0 +1,112 @@
+[
+  {
+    "Id": 1,
+    "DailyType": 1,
+    "AccumulationType": 1,
+    "DailyNeed": 1,
+    "DailyDescribe": "登录游戏",
+    "LanDesc": 381,
+    "DailyActiveReward": 10,
+    "Jump": 1,
+    "UnlockNeed": 0
+  },
+  {
+    "Id": 2,
+    "DailyType": 14,
+    "AccumulationType": 1,
+    "DailyNeed": 1,
+    "DailyDescribe": "参与主线关卡{0}次",
+    "LanDesc": 382,
+    "DailyActiveReward": 10,
+    "Jump": 1,
+    "UnlockNeed": 0
+  },
+  {
+    "Id": 3,
+    "DailyType": 24,
+    "AccumulationType": 1,
+    "DailyNeed": 1,
+    "DailyDescribe": "每日商店购买物品{0}次",
+    "LanDesc": 383,
+    "DailyActiveReward": 10,
+    "Jump": 3,
+    "UnlockNeed": 8
+  },
+  {
+    "Id": 4,
+    "DailyType": 22,
+    "AccumulationType": 1,
+    "DailyNeed": 1,
+    "DailyDescribe": "升级武器{0}次",
+    "LanDesc": 384,
+    "DailyActiveReward": 10,
+    "Jump": 2,
+    "UnlockNeed": 4
+  },
+  {
+    "Id": 5,
+    "DailyType": 13,
+    "AccumulationType": 1,
+    "DailyNeed": 3,
+    "DailyDescribe": "武器祈愿{0}次",
+    "LanDesc": 385,
+    "DailyActiveReward": 10,
+    "Jump": 3,
+    "UnlockNeed": 3
+  },
+  {
+    "Id": 6,
+    "DailyType": 7,
+    "AccumulationType": 1,
+    "DailyNeed": 3,
+    "DailyDescribe": "扫荡{0}次",
+    "LanDesc": 386,
+    "DailyActiveReward": 20,
+    "Jump": 1,
+    "UnlockNeed": 7
+  },
+  {
+    "Id": 7,
+    "DailyType": 15,
+    "AccumulationType": 1,
+    "DailyNeed": 1,
+    "DailyDescribe": "购买或看视频获得体力{0}次",
+    "LanDesc": 387,
+    "DailyActiveReward": 10,
+    "Jump": 9,
+    "UnlockNeed": 0
+  },
+  {
+    "Id": 8,
+    "DailyType": 23,
+    "AccumulationType": 1,
+    "DailyNeed": 1,
+    "DailyDescribe": "任意看广告{0}次",
+    "LanDesc": 388,
+    "DailyActiveReward": 20,
+    "Jump": 3,
+    "UnlockNeed": 0
+  },
+  {
+    "Id": 9,
+    "DailyType": 10,
+    "AccumulationType": 1,
+    "DailyNeed": 200,
+    "DailyDescribe": "击杀怪物{0}次",
+    "LanDesc": 389,
+    "DailyActiveReward": 10,
+    "Jump": 8,
+    "UnlockNeed": 25
+  },
+  {
+    "Id": 10,
+    "DailyType": 16,
+    "AccumulationType": 1,
+    "DailyNeed": 2,
+    "DailyDescribe": "领取巡逻收益{0}次",
+    "LanDesc": 390,
+    "DailyActiveReward": 20,
+    "Jump": 1,
+    "UnlockNeed": 18
+  }
+]

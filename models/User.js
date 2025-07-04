@@ -20,7 +20,7 @@ const dailyStoreSchema = new mongoose.Schema({
   PriceType: { type: Number, required: true }, // 价格类型
   PriceType2: { type: String, required: true }, // 价格类型2（2-免费 1-广告 0-钻石 3-金币）
   Time: { type: Number, required: true }, // 上一次广告购买时间
-  priceType2List: { type: Array, required: true }, // 价格类型2数值
+  priceType2List: { type: Array, required: true }, // 价格类型2数值 index-购买次数 element-货币类型
 })
 
 // 精英关卡信息
@@ -65,6 +65,40 @@ const TodayCountsSchema = new mongoose.Schema({
   BuyPowerGemCount: { type: Number, required: true, default: 0 }, // 今日钻石购买体力次数
   LeftPowerFastBattleCount: { type: Number, required: true, default: 3 }, // 今日使用体力进行扫荡次数
   LeftVideoFastBattleCount: { type: Number, required: true, default: 2 }, // 今日看广告进行扫荡次数
+})
+
+// 签到信息
+const SignSchema = new mongoose.Schema({
+  SignDay: { type: Number, default: 0 }, //已签到天数 七天一循环
+  SignAccumulate: { type: Number, default: 0 }, // 签到累计天数
+  SignAccumulateDrawFlag: { type: String, default: "" }, // 签到累计天数宝箱领取
+  SignTime: { type: Number, default: 0 }, // 上次签到的时间
+})
+
+const TaskSchema = new mongoose.Schema({
+  draw: { type: Boolean, default: false }, // 是否已领取
+  num: { type: Number, default: 0 }, // 达成次数
+  task_id: { type: Number, default: 0 }, // 任务ID(对应RoutineTask表)
+})
+
+// 每日任务
+const DailyTaskSchema = new mongoose.Schema({
+  daily: { type: [TaskSchema], default: []}, // 任务数据
+  dailyRefreshTime: { type: Number, default: 0 }, // 刷新时间
+  TaskDailyActiveDraw: { type: String, default: "" }, // 活跃度宝箱领取
+})
+
+// 每周任务
+const WeeklyTaskSchema = new mongoose.Schema({
+  weekly: { type: [TaskSchema], default: []}, // 任务数据
+  weeklyRefreshTime: { type: Number, default: 0 }, // 刷新时间
+  TaskWeeklyActiveDraw: { type: String, default: "" }, // 活跃度宝箱领取
+})
+
+// 成就任务
+const AchievementSchema = new mongoose.Schema({
+  achievement: { type: [], default: []}, // 要展示的成就任务id列表
+  userInfo: { type: {}, default: {}}, // 达成次数 {AchievementsType: count}
 })
 
 // 玩家装备
@@ -132,6 +166,10 @@ const neighborUserSchema = new mongoose.Schema({
   toutiaoSideBarOnce: { type: Number, default: 0 }, // 抖音侧边栏是否已领取 0-未领取 1-已领取
   DrawOfflineTime: { type: Number, default: 0 }, // 离线奖励开始时间点（s）
   RoleEquips: {type: [RoleEquipSchema], default: []}, // 武器
+  Sign: {type: SignSchema, default: {SignDay: 0, SignTime: 0, SignAccumulate: 0, SignAccumulateDrawFlag: ""}}, // 签到信息
+  DailyTask: {type: DailyTaskSchema, default: {}}, // 日常任务
+  WeeklyTask: {type: WeeklyTaskSchema, default: {}}, // 周常任务
+  Achievement: {type: AchievementSchema, default: {}}, // 成就
 });
 
 // 根据token获取用户信息

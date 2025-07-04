@@ -12,6 +12,7 @@ const equipRoutes = require('./routes/equipRoutes');
 const battleRoutes = require('./routes/battleRoutes');
 const shopRoutes = require('./routes/shopRoutes');
 const ttRoutes = require('./routes/ttRoutes');
+const taskRoutes = require('./routes/taskRoutes');
 const GameConfig = require('./tools/GameConfig');
 const fs = require('fs');
 const https = require('https');
@@ -69,6 +70,7 @@ app.use(equipRoutes);
 app.use(battleRoutes);
 app.use(shopRoutes);
 app.use(ttRoutes);
+app.use(taskRoutes);
 
 app.get('/index.html', function (req, res) {
     res.sendFile( __dirname + "/" + "index.html" );

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough, saveUserItemList, pushItemsToList, getConfigData, getRandomEquipExtraAttr } = require('../tools/CustomUtils');
+const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough, saveUserItemList, pushItemsToList, getConfigData, getRandomEquipExtraAttr,achieveTaskRecord } = require('../tools/CustomUtils');
 const jwt = require('jsonwebtoken'); // 新增jwt库
 var GameConfig = require("../tools/GameConfig");
 
@@ -58,6 +58,7 @@ router.post('/equip/upLevel', async (req, res) => {
         // 装备升级
         equip.lv += 1;
         user.equips[index] = equip; // 保存
+        achieveTaskRecord(user, GameConfig.TaskType.WeaponUpgrade);
         await user.save();
         res.json(formatResponse({
             equip: equip, // 武器信息
@@ -205,9 +206,10 @@ router.post('/cardlucky/start', async (req, res) => {
     let newEquips = [];
     if (reward[0] >= 1000 && !user.equips.find(e => e.cfgid === reward[0] - 1000)) {
         newEquips = [{cfgid: reward[0] - 1000, color_cfgid:0,id:18945863,lv: 1, star:0}];
-        user.equips.push(newEquips[0],); // 解锁新武器 
+        achieveTaskRecord(user, GameConfig.TaskType.GetWeapon);
+        user.equips.push(newEquips[0]); // 解锁新武器 
     }
-
+    achieveTaskRecord(user, GameConfig.TaskType.WeaponCall);
     await user.save();
 
     res.json(formatResponse({

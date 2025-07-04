@@ -88,6 +88,28 @@ module.exports = {
         3: 1
     },
 
+    /**=========================任务相关 */
+    TaskType: {
+        "DailyLogin": 1, // 每日首次登录游戏
+        "MissionOverReach": 2, // 通关至主线关卡
+        "LevelReach": 3, // 玩家等级达到
+        "UnlockCommonTalent": 4, // 解锁普通天赋
+        "FastBattle": 7, // 扫荡
+        "KillBoss": 9, // 击败首领
+        "KillEnemy": 10, // 击败怪物
+        "GetGold": 11, // 获得金币
+        "WeaponCall": 13, // 武器召唤
+        "MissionPaicipation": 14, // 参与主线关卡
+        "BuyOrAdGetPower": 15, // 购买或看视频得体力
+        "GetOfflineReward": 16, // 获取巡逻奖励
+        "GetWeapon": 21, // 获得武器
+        "WeaponUpgrade": 22, // 武器升级
+        "WatchAd": 23, // 看广告
+        "DailyShopBuy": 24, // 每日商店购买物品
+        "CostGem": 26, // 消耗钻石
+
+    },
+
     levelConfig:{}, // 玩家等级配置
 
     /**=========================离线相关 */
