@@ -197,7 +197,6 @@ router.post('/user/signAccumulate', async (req, res) => {
     const user = req.user;
     // 检查是否可领取
     let drawList = user.Sign.SignAccumulateDrawFlag.split(",");
-    console.log('=======drawlist',drawList);
     if (user.Sign.SignAccumulate < req.body.realday || drawList.indexOf(req.body.realday+"") != -1) {
         // 不可领取 || 已领取
         return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
