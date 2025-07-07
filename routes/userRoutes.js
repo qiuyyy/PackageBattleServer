@@ -75,15 +75,15 @@ router.post('/bag/info', async (req, res) => {
 
 // 使用物品
 router.post('/user/useItem', async (req, res) => {
-  const user = req.user.toObject();
+  const user = req.user;
   if (req.body.count <= 0) {
     return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL"));
   }
-  let items = []; // 物品列表
-  if (obj = !saveUserItem(req.user, req.body.itemid, - req.body.count)) {
+  let obj;
+  if (!(obj = saveUserItem(user, req.body.id, - req.body.count))) {
     return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
   }
-  
+  await user.save();
   res.json(formatResponse({
     ...obj,
   }));

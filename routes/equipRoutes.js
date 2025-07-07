@@ -71,6 +71,52 @@ router.post('/equip/upLevel', async (req, res) => {
     }
 });
 
+// 武器升星
+router.post('/equip/upStar', async (req, res) => {
+    const user = req.user;
+    try {
+        // 找到已解锁的装备信息
+        let index = 0; // 武器索引
+        let equip = user.equips.find((e, i) => {
+            // 找到武器
+            if (e.cfgid === req.body.cfgid) {
+                index = i; // 保存索引
+                return true;
+            }
+            return false;
+        });
+        if (!equip) { // 未解锁
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "INVALID_EQUIP"));
+        }
+        // 检查材料是否充足
+        let starUpConfig = getConfigData("EquipStar").find(c => c.EquipStar == equip.star);
+        let cost = getConfigData("EquipBase").find(c => c.EquipID == req.body.cfgid).UpgradeStarItem.map(itemId => {
+            if (itemId == 109) { // 升星石
+                return [itemId, - starUpConfig.ItemCost];
+            } else { // 图纸
+                return [itemId, - starUpConfig.ChipCost];
+            }
+        });
+        if (!checkItemIsEnough(user, cost)) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+        }
+        // 扣除材料
+        let result = saveUserItemList(user, cost);
+        // 装备升星
+        equip.star += 1;
+        user.equips[index] = equip;
+        await user.save();
+        res.json(formatResponse({
+            equip: equip, // 武器信息
+            ...result,
+            bag: user.api.bagInfo
+        }));
+    } catch (err) {
+        res.status(500).json({ errcode: 1, message: 'Server error' + err });
+    }
+});
+
+
 // 武器祈愿刷新
 router.post('/cardlucky/refresh', async (req, res) => {
     const user = req.user;

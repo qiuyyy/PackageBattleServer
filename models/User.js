@@ -140,7 +140,6 @@ const neighborUserSchema = new mongoose.Schema({
   last_login_time: { type: Number, default: Date.now }, // 上次登录时间
   nickname: { type: String, default: '' }, // 用户昵称
   serverName: { type: String, default: '' }, // 服务器名称
-  equip_table: { type: Array, default: [] }, // 装备列表
   Gold: { type: Number, default: 0 }, // 金币数量
   Diamond: { type: Number, default: 0 }, // 钻石数量
   Level: { type: Number, default: 1 }, // 用户等级

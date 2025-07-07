@@ -1,0 +1,281 @@
+[
+  {
+    "EquipStar": 0,
+    "StarColor": 0,
+    "StarNum": 0,
+    "ChipCost": 90,
+    "ItemCost": 5,
+    "NeedEquipLevel": 35,
+    "Attr": []
+  },
+  {
+    "EquipStar": 1,
+    "StarColor": 1,
+    "StarNum": 1,
+    "ChipCost": 90,
+    "ItemCost": 10,
+    "NeedEquipLevel": 35,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 2,
+    "StarColor": 1,
+    "StarNum": 2,
+    "ChipCost": 90,
+    "ItemCost": 15,
+    "NeedEquipLevel": 35,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 3,
+    "StarColor": 1,
+    "StarNum": 3,
+    "ChipCost": 120,
+    "ItemCost": 25,
+    "NeedEquipLevel": 45,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 4,
+    "StarColor": 1,
+    "StarNum": 4,
+    "ChipCost": 120,
+    "ItemCost": 40,
+    "NeedEquipLevel": 45,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 5,
+    "StarColor": 1,
+    "StarNum": 5,
+    "ChipCost": 120,
+    "ItemCost": 50,
+    "NeedEquipLevel": 45,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 6,
+    "StarColor": 2,
+    "StarNum": 1,
+    "ChipCost": 150,
+    "ItemCost": 75,
+    "NeedEquipLevel": 55,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 7,
+    "StarColor": 2,
+    "StarNum": 2,
+    "ChipCost": 150,
+    "ItemCost": 100,
+    "NeedEquipLevel": 55,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 8,
+    "StarColor": 2,
+    "StarNum": 3,
+    "ChipCost": 150,
+    "ItemCost": 125,
+    "NeedEquipLevel": 55,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 9,
+    "StarColor": 2,
+    "StarNum": 4,
+    "ChipCost": 500,
+    "ItemCost": 150,
+    "NeedEquipLevel": 65,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 10,
+    "StarColor": 2,
+    "StarNum": 5,
+    "ChipCost": 500,
+    "ItemCost": 175,
+    "NeedEquipLevel": 65,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 11,
+    "StarColor": 3,
+    "StarNum": 1,
+    "ChipCost": 500,
+    "ItemCost": 200,
+    "NeedEquipLevel": 65,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 12,
+    "StarColor": 3,
+    "StarNum": 2,
+    "ChipCost": 1000,
+    "ItemCost": 225,
+    "NeedEquipLevel": 75,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 13,
+    "StarColor": 3,
+    "StarNum": 3,
+    "ChipCost": 1000,
+    "ItemCost": 250,
+    "NeedEquipLevel": 75,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 14,
+    "StarColor": 3,
+    "StarNum": 4,
+    "ChipCost": 1000,
+    "ItemCost": 275,
+    "NeedEquipLevel": 75,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  },
+  {
+    "EquipStar": 15,
+    "StarColor": 3,
+    "StarNum": 5,
+    "ChipCost": 0,
+    "ItemCost": 0,
+    "NeedEquipLevel": 0,
+    "Attr": [
+      [
+        101,
+        0
+      ],
+      [
+        102,
+        0
+      ]
+    ]
+  }
+]
