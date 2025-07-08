@@ -75,15 +75,15 @@ async function handleUserLogin(openid, res) {
 function initNewPlayerData(user) {
   // 初始解锁武器
   user.equips = [
-      { cfgid: 2101,color_cfgid:0,id:18945860,lv: 1, star:0},
-      { cfgid: 2102,color_cfgid:0,id:18945861,lv: 1, star:0},
-      { cfgid: 2103,color_cfgid:0,id:18945862,lv: 1, star:0},
-      { cfgid: 2104,color_cfgid:0,id:18945863,lv: 1, star:0},
-      { cfgid: 2201,color_cfgid:0,id:18945863,lv: 1, star:0},
-      { cfgid: 2202,color_cfgid:0,id:18945863,lv: 1, star:0},
-      { cfgid: 2203,color_cfgid:0,id:18945863,lv: 1, star:0},
-      { cfgid: 2205,color_cfgid:0,id:18945863,lv: 1, star:0},
-      { cfgid: 2207,color_cfgid:0,id:18945863,lv: 1, star:0},
+      { cfgid: 2101,color_cfgid:0,lv: 1, star:0},
+      { cfgid: 2102,color_cfgid:0,lv: 1, star:0},
+      { cfgid: 2103,color_cfgid:0,lv: 1, star:0},
+      { cfgid: 2104,color_cfgid:0,lv: 1, star:0},
+      { cfgid: 2201,color_cfgid:0,lv: 1, star:0},
+      { cfgid: 2202,color_cfgid:0,lv: 1, star:0},
+      { cfgid: 2203,color_cfgid:0,lv: 1, star:0},
+      { cfgid: 2205,color_cfgid:0,lv: 1, star:0},
+      { cfgid: 2207,color_cfgid:0,lv: 1, star:0},
     ];
   // 初始上阵武器
   user.equip_table = [

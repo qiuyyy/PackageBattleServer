@@ -165,11 +165,13 @@ router.post('/battle/offlineEarn', async (req, res) => {
     // 根据当前通关数据获取奖励
     let rewards = []; // 巡逻奖励
     let fastRewards = []; //扫荡奖励
-    let config = GameConfig.trainRewardsConfig[req.user.ChapterID - 2] || {};
+    let config = GameConfig.trainRewardsConfig[req.user.ChapterID - 1] || {};
     (config.other_display || []).forEach((item, index) => {
+        // 巡逻收益(other_display中前五个奖励 / 5 * 奖励时长)
         if (index < 5 && rewardHours > 0) {
             rewards.push([item[0], Math.floor(item[1] / 5) * rewardHours]);
         } 
+        // 扫荡收益
         fastRewards.push(item);
     })
 
@@ -188,13 +190,34 @@ router.post('/battle/offlineEarn', async (req, res) => {
 // 获取巡逻奖励
 router.post('/battle/drawOfflineEarn', async (req, res) => {
     const user = req.user;
+    // 判断时长
+    let rewardHours = Math.floor(((new Date().getTime() / 1000) - user.DrawOfflineTime) / 3600);
+    rewardHours = Math.min(24, rewardHours); //最长24小时
+    if (rewardHours < 1) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+    }
+    // 保存领取数据
+    user.DrawOfflineTime = Math.floor(new Date().getTime() / 1000);
     
     // 获取奖励
+    let rewards = []; // 巡逻奖励
+    let config = GameConfig.trainRewardsConfig[req.user.ChapterID - 1] || {};
+    (config.other_display || []).forEach((item, index) => {
+        // 巡逻收益(other_display中前五个奖励 / 5 * 奖励时长)
+        if (index < 5 && rewardHours > 0) {
+            rewards.push([item[0], Math.floor(item[1] / 5) * rewardHours]);
+        } 
+    })
+    let result = saveUserItemList(user, rewards);
     achieveTaskRecord(user, GameConfig.TaskType.GetOfflineReward);
     await user.save();
 
     res.json(formatResponse({
-        
+        ...result,
+        kv: {
+            DrawOfflineTime: user.DrawOfflineTime,
+        },
+
     }));
 })
 // 获取扫荡奖励

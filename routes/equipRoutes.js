@@ -251,7 +251,7 @@ router.post('/cardlucky/start', async (req, res) => {
     // 如果为新武器则解锁
     let newEquips = [];
     if (reward[0] >= 1000 && !user.equips.find(e => e.cfgid === reward[0] - 1000)) {
-        newEquips = [{cfgid: reward[0] - 1000, color_cfgid:0,id:18945863,lv: 1, star:0}];
+        newEquips = [{cfgid: reward[0] - 1000, color_cfgid:0,lv: 1, star:0}];
         achieveTaskRecord(user, GameConfig.TaskType.GetWeapon);
         user.equips.push(newEquips[0]); // 解锁新武器 
     }

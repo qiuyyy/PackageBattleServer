@@ -54,6 +54,7 @@ module.exports = {
      * items: 物品[[itemId, num]],
      * roleEquips: 装备 [{RoleEquipSchema}]
      * levelup：升级信息 {LevelOld-旧等级, LevelNew-新等级, Exp-经验, Rewards-升级奖励}
+     * equips: 新武器
      * }
      */
     saveUserItem(user, itemId, num) {
@@ -136,8 +137,9 @@ module.exports = {
                 }
             })
         } else if (itemId >= GameConfig.equipBoxIdLimit[0] && itemId <= GameConfig.equipBoxIdLimit[1]) {
+            // 装备随机宝箱
             // 生成装备并存入
-            maxColorQuality = GameConfig.equipBoxData[itemId].maxColorQuailty;
+            let maxColorQuality = GameConfig.equipBoxData[itemId].maxColorQuailty;
             let phase = GameConfig.equipBoxData[itemId].phase;
             let equipIdList = [];
             obj.items = [];
@@ -148,6 +150,19 @@ module.exports = {
             }
             let equips = module.exports.addEquipToUser(user, equipIdList);
             obj.roleEquips = equips;
+        } else if (GameConfig.WeaponBoxData[itemId]) {
+            // 武器随机宝箱
+            // 生成武器并存入
+            let quality = GameConfig.WeaponBoxData[itemId];
+
+            let weaponIdList = [];
+            obj.items = [];
+            for (let i = 0; i < num; i++) {
+                let weaponId = module.exports.getRandomWeapon(quality);
+                weaponIdList.push(weaponId);
+            }
+            let result = module.exports.addWeaponToUser(user, weaponIdList);
+            obj = result;
         } else {
             // 背包物品 || 天赋书
             let bagItem = user.api.bagInfo.find(item => item.Itemid == itemId);
@@ -178,6 +193,9 @@ module.exports = {
             if (resObj.levelup) {
                 obj.levelup = resObj.levelup;
             }
+            if (resObj.equips) {
+                obj.equips = (obj.equips || []).concat(resObj.equips);
+            }
         })
         return obj;
     },
@@ -198,6 +216,36 @@ module.exports = {
             roleEquips.push(user.RoleEquips.slice(-1)[0]);
         }
         return roleEquips;
+    },
+
+    // 添加武器
+    addWeaponToUser(user, weaponIds) {
+        let result = {
+            items: [],
+            equips: []
+        };
+        for (let i = 0; i < weaponIds.length; i++) {
+            const id = weaponIds[i];
+            // 检查是否已有该武器 || 随机到同一件武器了
+            let userWeapon = user.equips.find(item => item.cfgid == id) || weaponIds.indexOf(id) < i;
+            if (userWeapon) {
+                // 已有 添加武器图纸x20
+                let printId = id + 1000; // 图纸id
+                result.items = module.exports.pushItemsToList(result.items, module.exports.saveUserItem(user,printId, 20).items);
+            } else {
+                // 新增武器
+                let weapon = {
+                    cfgid: id,
+                    color_cfgid:0,
+                    lv: 1, 
+                    star:0
+                };
+                user.equips.push(weapon);
+                result.items = module.exports.pushItemsToList(result.items, [[id, 1]]);
+                result.equips.push(user.equips.slice(-1)[0]);
+            }
+        }
+        return result;
     },
 
     // 随机获取武器额外属性
@@ -312,6 +360,7 @@ module.exports = {
         }
         let list = GameConfig.weaponIdByQuality[quality];
         if (!list) return null; // 不存在
+        list = list.filter(i => !i.Pass); // 排除非武器(如果实/钱袋)
         const randomNum = Math.floor(Math.random() * list.length); // 随机
         return list[randomNum];
     },
