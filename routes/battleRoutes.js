@@ -205,10 +205,10 @@ router.post('/battle/fastBattle', async (req, res) => {
     if (req.body.ad) {
         // 看广告获取
         // 检查剩余次数
-        if (user.TodayCounts.LeftAdFastBattleCount <= 0) {
+        if (user.TodayCounts.LeftVideoFastBattleCount <= 0) {
             return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
         }
-        user.TodayCounts.LeftAdFastBattleCount --;
+        user.TodayCounts.LeftVideoFastBattleCount --;
     } else {
         // 检查剩余次数
         if (user.TodayCounts.LeftPowerFastBattleCount <= 0 ) {
@@ -226,11 +226,12 @@ router.post('/battle/fastBattle', async (req, res) => {
     await user.save();
 
     res.json(formatResponse({
-        LeftAdFastBattleCount: user.TodayCounts.LeftAdFastBattleCount,
-        LeftPowerFastBattleCount: user.TodayCounts.LeftPowerFastBattleCount,
         kv: {
+            LeftVideoFastBattleCount: user.TodayCounts.LeftVideoFastBattleCount,
+            LeftPowerFastBattleCount: user.TodayCounts.LeftPowerFastBattleCount,
             Exp: user.Exp,
             Level: user.Level,
+            Power: user.Power
         },
         ...returnList
     }));

@@ -133,6 +133,8 @@ function initNewPlayerData(user) {
     achievement,
     userInfo
   }
+  // 巡逻
+  user.DrawOfflineTime = Math.floor(new Date().getTime() / 1000);
   return user;
 }
 
@@ -149,8 +151,8 @@ function updateDailyData(user) {
     RereshStoreNum: 0,
     BuyPowerVideoCount: 0,
     BuyPowerGemCount: 0,
-    LeftPowerFastBattleCount: GameConfig.offlineDayPowerCount,
-    LeftAdFastBattleCount: GameConfig.offlineDayAdCount,
+    LeftPowerFastBattleCount: GameConfig.faseBattleDailyPowerCount,
+    LeftVideoFastBattleCount: GameConfig.fastBattleDailyVideoCount,
   };
   
   // 日常任务
