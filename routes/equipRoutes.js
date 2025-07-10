@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough, saveUserItemList, pushItemsToList, getConfigData, getRandomEquipExtraAttr,achieveTaskRecord } = require('../tools/CustomUtils');
+const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough, saveUserItemList, pushItemsToList, getConfigData, getRandomEquipExtraAttr,achieveTaskRecord, getRandomGem, addGemToUser } = require('../tools/CustomUtils');
 const jwt = require('jsonwebtoken'); // 新增jwt库
 var GameConfig = require("../tools/GameConfig");
 
@@ -457,5 +457,157 @@ getEquipPrintIdByPart = function(part) {
     return id;
 };
 
+
+// 宝石镶嵌
+router.post("/gear/wearGem", async (req, res) => {
+    const user = req.user;
+    // 检查是否与该宝石
+    let gemData = user.Gems.filter(i => i._id == req.body.gem);
+    if (!gemData) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "未拥有该宝石"));
+    }
+    // 检查孔位是否已镶嵌
+    let gemGear = user.GearGems[req.body.plan].find(e => e.Part == req.body.part && e.Hole == req.body.hole);
+    if (gemGear && gemGear.gem) {
+        if (gemGear.gem != gemData[0]._id) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "已无可镶嵌孔位"));
+        }
+    }
+    // 存储镶嵌
+    let gear = {
+        Plan: req.body.plan,
+        Part: req.body.part,
+        Hole: req.body.hole,
+        Gem: req.body.gem
+    }
+    user.GearGems[req.body.plan].push(gear);
+    // 手动标记 GearGems 字段变更
+    user.markModified('GearGems');
+    await user.save();
+    res.json(formatResponse({
+        GearGem: gear
+    }));
+})
+
+// 卸下宝石
+router.post("/gear/unwearGem", async (req, res) => {
+    const user = req.user;
+    let gearGem = user.GearGems[req.body.plan].find(e => e.Part == req.body.part && e.Hole == req.body.hole);
+    if (!gearGem) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "未镶嵌该宝石"));
+    }
+    // 保存
+    let newGear = {
+        Plan: req.body.plan,
+        Part: req.body.part,
+        Hole: req.body.hole,
+        Gem: ""
+    }
+    user.GearGems[req.body.plan].find(e => {
+        if (e.Part == req.body.part && e.Hole == req.body.hole) {
+            e.Gem = "";
+        }
+    })
+    // 手动标记 GearGems 字段变更
+    user.markModified('GearGems');
+    await user.save();
+    res.json(formatResponse({
+        GearGem: newGear
+    }));
+})
+
+// 更换镶嵌方案
+router.post("/gear/select", async (req, res) => {
+    const user = req.user;
+    let plan = req.body.plan;
+    if (!user.GearGems[plan]) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "方案不存在"));
+    }
+    // 保存
+    user.Gear.Plan = plan;
+    await user.save();
+    res.json(formatResponse({
+        Plan: plan
+    }));
+})
+
+// 宝石洗练
+router.post("/gear/remakeGem", async (req, res) => {
+    const user = req.user;
+    let gem = user.Gems.find(e => e._id == req.body.id);
+    if (!gem) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "未拥有该宝石"));
+    }
+    let gemConfig = getConfigData("Gem").find(e => e.Id == gem.Cfgid);
+    // 保存
+    let newId = getRandomGem(gemConfig.GemQuality, gemConfig.Type, 1)[0];
+    let newGem = {};
+    user.Gems = user.Gems.map(g => {
+        if (g._id == req.body.id) {
+            g.Cfgid = newId;
+            newGem = g;
+        }
+        return g;
+    });
+
+    await user.save();
+    res.json(formatResponse({
+        Gem: newGem
+    }));
+})
+
+// 宝石一键合成
+router.post("/gear/mergeGems", async (req, res) => {
+    const user = req.user;
+    // 获取可合成列表
+    let costList = []; // 耗材列表 {部位_品质: {count: 个数, list: 宝石列表}}
+    const combineCostCount = 5; // 合成消耗个数
+    user.Gems.filter(g => {
+        let gemConfig = getConfigData("Gem").find(e => e.Id == g.Cfgid);
+        // 没有被锁
+        if (g.Locked) return false;
+        // 没有被镶嵌
+        for(let i = 1; i <=3; i++) {
+            if (user.GearGems[i].find(e => e.Gem == g._id)) {
+                return false;
+            }
+        }
+        // 有合成目标
+        if (!getConfigData("Gem").find(e => e.Type == gemConfig.Type && e.GemQuality == gemConfig.GemQuality + 1)) return false;
+
+        costList[gemConfig.Type + "_" + gemConfig.GemQuality] || (costList[gemConfig.Type + "_" + gemConfig.GemQuality] = {count: 0, list: []});
+        costList[gemConfig.Type + "_" + gemConfig.GemQuality].count = (costList[gemConfig.Type + "_" + gemConfig.GemQuality].count || 0) + 1;
+        costList[gemConfig.Type + "_" + gemConfig.GemQuality].list.push(g);
+        return true;
+    })
+    let del = [];
+    let add = [];
+    // 总结:消耗 & 合成
+    for (let key in costList) {
+        let part = key.split("_")[0]; // 部位
+        let quality = key.split("_")[1]; // 品质
+        let combineCount = Math.floor(costList[key].count / combineCostCount); // 可合成几个
+        if (combineCount > 0) {
+            del = costList[key].list.slice(0, combineCostCount * combineCount);
+            add = add.concat(getRandomGem(Number(quality) + 1, part, combineCount));
+        } 
+    }
+    // 执行:消耗 & 合成
+    user.Gems = user.Gems.filter(g => {
+        return !del.find(e => e._id == g._id);
+    })
+    let result = {};
+    if (add.length > 0) {
+        result = addGemToUser(user, add);
+    }
+
+    await user.save();
+
+    res.json(formatResponse({
+        AddGems: result.gems,
+        DelGems: del.map(i => i._id),
+        ...result
+    }));
+})
 
 module.exports = router;

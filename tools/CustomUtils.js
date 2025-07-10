@@ -55,6 +55,7 @@ module.exports = {
      * roleEquips: 装备 [{RoleEquipSchema}]
      * levelup：升级信息 {LevelOld-旧等级, LevelNew-新等级, Exp-经验, Rewards-升级奖励}
      * equips: 新武器
+     * gems: 宝石
      * }
      */
     saveUserItem(user, itemId, num) {
@@ -154,7 +155,7 @@ module.exports = {
             // 武器随机宝箱
             // 生成武器并存入
             let quality = GameConfig.WeaponBoxData[itemId];
-
+            
             let weaponIdList = [];
             obj.items = [];
             for (let i = 0; i < num; i++) {
@@ -163,6 +164,16 @@ module.exports = {
             }
             let result = module.exports.addWeaponToUser(user, weaponIdList);
             obj = result;
+        } else if (GameConfig.GemBoxData[itemId]) {
+            // 宝石随机宝箱
+            // 根据概率获取品质
+            let gemIds = []; //宝石id
+            for (let i = 0;i < num;i++) {
+                let gemQuality = module.exports.getRandomByProb(GameConfig.GemBoxData[itemId]);
+                let id = module.exports.getRandomGem(gemQuality)[0];
+                gemIds.push(id);
+            }
+            obj = module.exports.addGemToUser(user, gemIds);
         } else {
             // 背包物品 || 天赋书
             let bagItem = user.api.bagInfo.find(item => item.Itemid == itemId);
@@ -195,6 +206,9 @@ module.exports = {
             }
             if (resObj.equips) {
                 obj.equips = (obj.equips || []).concat(resObj.equips);
+            }
+            if (resObj.gems) {
+                obj.gems = (obj.gems || []).concat(resObj.gems);
             }
         })
         return obj;
@@ -245,6 +259,23 @@ module.exports = {
                 result.equips.push(user.equips.slice(-1)[0]);
             }
         }
+        return result;
+    },
+
+    // 添加宝石
+    addGemToUser(user, gemIds) {
+        let result = {
+            gems: [],
+            items: [],
+        };
+        gemIds.forEach(id => {
+            user.Gems.push({
+                Cfgid: id,
+                Locked: 0,
+            })
+            result.gems.push(user.Gems.slice(-1)[0]);
+            result.items = module.exports.pushItemsToList(result.items, [[id, 1]]);
+        })
         return result;
     },
 
@@ -365,13 +396,46 @@ module.exports = {
         return list[randomNum];
     },
 
+    // 获取随机宝石 quality-品质 part-部位 count-数量
+    getRandomGem(quality, part, count) {
+        quality = quality || 1;
+        count = count || 1;
+        let list = module.exports.getConfigData("Gem").filter(i => {
+            let tag = false;
+            // 判断影响武器的最高品质
+            let maxWeaponQuality = 0;
+            let effectWeaponList = i.WeaponId;
+            for (let index = 0; index < effectWeaponList.length; index++) {
+                const weapon = GameConfig.weaponInfoById[effectWeaponList[index]];
+                maxWeaponQuality = Math.max(weapon.EquipQuality, maxWeaponQuality);
+            }
+            if (i.GemQuality == quality
+                && (part ? (i.Type == part) : true)
+                && (i.Value || i.ValueArray.length || i.ValueJson || i.ValueJsonArray.length) //属性要有值
+                && (maxWeaponQuality < 5) // FIXME:影响武器宝石 目前只能获得3/4品质武器的buff宝石
+            ) {
+                tag = true;
+            }
+            return tag
+        });
+        if (!list || !list.length || list.length < count) return null; // 不存在
+        
+        let ids = [];
+        for (let i = 0; i < count; i++) {
+            let id = module.exports.getRandomElement(list).Id;
+            ids.push(id);
+        }
+        return ids;
+    },
+
     // 随机获取数值的一个元素
     getRandomElement(arr) {
+        if (!arr) return null;
         let index = Math.floor(Math.random() * arr.length);
         return arr[index];
     },
 
-    // 随机获取对象的一个属性值
+    // 随机获取对象的一个属性值(概率平均)
     getRandomProperty(obj) {
         // 获取对象的所有属性名
         const keys = Object.keys(obj);

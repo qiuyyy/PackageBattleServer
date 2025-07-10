@@ -77,7 +77,17 @@ module.exports = {
     equipBoxData: { // 装备宝箱信息(同item表) phase-品阶 maxColorQuailty-最高品质
         // TODO: 后续还要增加
         501: {phase: 1, maxColorQuailty: 3},
+        502: {phase: 2, maxColorQuailty: 3},
+        503: {phase: 3, maxColorQuailty: 3},
+        504: {phase: 4, maxColorQuailty: 3},
+        505: {phase: 5, maxColorQuailty: 3},
+        506: {phase: 6, maxColorQuailty: 3},
         551: {phase: 1, maxColorQuailty: 3},
+        552: {phase: 2, maxColorQuailty: 3},
+        553: {phase: 3, maxColorQuailty: 3},
+        554: {phase: 4, maxColorQuailty: 3},
+        555: {phase: 5, maxColorQuailty: 3},
+        556: {phase: 6, maxColorQuailty: 3},
     },
     equipColorQualityProb: { // 随机装备品质概率 百分率
         1: 50,
@@ -97,7 +107,12 @@ module.exports = {
     /**=========================宝石相关 */
     GemBoxData: { // 随机宝石宝箱
         // 各宝石品质概率 id: 概率
-        708: [94.54, 3.51, 1.75, 0.17, 0.03 ], //关卡随机宝石Ⅰ
+        708: {1: 9454, 2: 351, 3: 175, 4: 17, 5: 3 }, //关卡随机宝石Ⅰ
+        709: {1: 9370, 2: 413, 3: 186, 4: 24, 5: 7 }, //关卡随机宝石Ⅱ
+        710: {1: 9288, 2: 478, 3: 197, 4: 31, 5: 10 }, //关卡随机宝石Ⅲ
+        751: {1: 9454, 2: 351, 3: 175, 4: 17, 5: 3 }, //关卡随机宝石Ⅰ
+        752: {1: 9370, 2: 413, 3: 186, 4: 24, 5: 7 }, //关卡随机宝石Ⅱ
+        753: {1: 9288, 2: 478, 3: 197, 4: 31, 5: 10 }, //关卡随机宝石Ⅲ
     },
 
     /**=========================任务相关 */
@@ -119,7 +134,6 @@ module.exports = {
         "WatchAd": 23, // 看广告
         "DailyShopBuy": 24, // 每日商店购买物品
         "CostGem": 26, // 消耗钻石
-
     },
 
     levelConfig:{}, // 玩家等级配置

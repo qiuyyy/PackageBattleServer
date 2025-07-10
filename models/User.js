@@ -135,6 +135,19 @@ const GearSchema = new mongoose.Schema({
   Plan: { type: Number, default: 1 }, //使用的镶嵌方案
 })
 
+// 宝石
+const GemSchema = new mongoose.Schema({
+  Cfgid: { type: Number, default: 0 }, // 宝石id
+  Locked: { type: Number, default: 0 }, //是否被锁定 0-否 1-是
+})
+// 宝石镶嵌
+const GearGemSchema = new mongoose.Schema({
+  Plan: { type: Number, default: 0 }, // 方案id 1-3
+  Part: {type: Number, default: 0 }, // 部位 1-6
+  Hole: {type: Number, default: 0 }, // 孔位 1-5
+  Gem: { type: String, default: "" }, // 宝石_id
+})
+
 const neighborUserSchema = new mongoose.Schema({
   openid: { type: String, required: true, unique: true ,index: true}, // 用户唯一标识
   last_login_time: { type: Number, default: Date.now }, // 上次登录时间
@@ -169,6 +182,8 @@ const neighborUserSchema = new mongoose.Schema({
   DailyTask: {type: DailyTaskSchema, default: {}}, // 日常任务
   WeeklyTask: {type: WeeklyTaskSchema, default: {}}, // 周常任务
   Achievement: {type: AchievementSchema, default: {}}, // 成就
+  Gems: {type: [GemSchema], default: []}, //拥有的宝石
+  GearGems: {type: Object, default: {1:[], 2:[], 3:[]}, of: [GearGemSchema]}, //宝石镶嵌 三个方案
 });
 
 // 根据token获取用户信息
