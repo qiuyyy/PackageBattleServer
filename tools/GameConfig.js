@@ -139,6 +139,6 @@ module.exports = {
     levelConfig:{}, // 玩家等级配置
 
     /**=========================离线相关 */
-    fastBattleDailyVideoCount: 2, //每天扫荡广告获取次数
+    fastBattleDailyVideoCount: 1, //每天扫荡广告获取次数
     faseBattleDailyPowerCount: 3, //每天扫荡体力获取次数
 }

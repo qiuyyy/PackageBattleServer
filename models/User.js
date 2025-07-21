@@ -64,7 +64,7 @@ const TodayCountsSchema = new mongoose.Schema({
   BuyPowerVideoCount: { type: Number, required: true, default: 0 }, // 今日广告获取体力次数
   BuyPowerGemCount: { type: Number, required: true, default: 0 }, // 今日钻石购买体力次数
   LeftPowerFastBattleCount: { type: Number, required: true, default: 3 }, // 今日使用体力进行扫荡次数
-  LeftVideoFastBattleCount: { type: Number, required: true, default: 2 }, // 今日看广告进行扫荡次数
+  LeftVideoFastBattleCount: { type: Number, required: true, default: 1 }, // 今日看广告进行扫荡次数
 })
 
 // 签到信息

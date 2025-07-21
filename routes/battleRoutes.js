@@ -183,7 +183,8 @@ router.post('/battle/offlineEarn', async (req, res) => {
         fastRewards,
         show_hour_exp: config.hour_exp,
         show_hour_gold: config.hour_gold,
-        usePower: config.stamina
+        usePower: config.stamina,
+        chapter: user.ChapterID
     }));
 })
 
@@ -217,7 +218,6 @@ router.post('/battle/drawOfflineEarn', async (req, res) => {
         kv: {
             DrawOfflineTime: user.DrawOfflineTime,
         },
-
     }));
 })
 // 获取扫荡奖励

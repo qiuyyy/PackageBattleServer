@@ -19,7 +19,7 @@ async function handleUserLogin(openid, res) {
     // 新玩家
     new_player = true;
     user = new User({ 
-      nickname: "玩家" + openid.slice(-6), // 根据openid后六位生成一个昵称,
+      nickname: "Player" + openid.slice(-6), // 根据openid后六位生成一个昵称,
       openid: openid,
       last_login_time: new Date().getTime(), // 更新登录时间,
       Regdate: new Date().getTime(), // 添加注册时间
