@@ -8,6 +8,7 @@ module.exports = {
         VersionLow: 1003,
         RepeatedSettlement: 1004,
         StopServer: 1005,
+        LoginAccountAgain: 1006, // 需要输入账号密码登录
         NoGmoney: -999,
         EquipTableEnough: -2
     },

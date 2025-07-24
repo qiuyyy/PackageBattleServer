@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { getSercetKey } = require('../tools/CustomUtils');
-const { totalLuckyNum } = require('../tools/GameConfig');
+const bcrypt = require('bcrypt');
 
 // 背包物品
 const bagInfoSchema = new mongoose.Schema({
@@ -152,6 +152,7 @@ const neighborUserSchema = new mongoose.Schema({
   openid: { type: String, required: true, unique: true ,index: true}, // 用户唯一标识
   last_login_time: { type: Number, default: Date.now }, // 上次登录时间
   nickname: { type: String, default: '' }, // 用户昵称
+  password: { type: String, default: '' }, // 密码
   serverName: { type: String, default: '' }, // 服务器名称
   Gold: { type: Number, default: 0 }, // 金币数量
   Diamond: { type: Number, default: 0 }, // 钻石数量
@@ -184,7 +185,23 @@ const neighborUserSchema = new mongoose.Schema({
   Achievement: {type: AchievementSchema, default: {}}, // 成就
   Gems: {type: [GemSchema], default: []}, //拥有的宝石
   GearGems: {type: Object, default: {1:[], 2:[], 3:[]}, of: [GearGemSchema]}, //宝石镶嵌 三个方案
+  safeQuestion: {type: Object, default: {id: 0, answer: ""}}, // 密保问题
 });
+
+// 保存前加密密码
+neighborUserSchema.pre('save', async function (next) {
+  const user = this;
+  if (!user.isModified('password')) return next();
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(user.password, salt);
+  user.password = hash;
+  next();
+});
+
+// 验证密码
+neighborUserSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
+};
 
 // 根据token获取用户信息
 neighborUserSchema.statics.getUserByToken = async function(token) {

@@ -16,4 +16,9 @@ router.post('/client/watchAd', async (req, res) => {
   res.json(formatResponse({}));
 })
 
+router.post('/server/getServerList', async (req, res) => {
+  res.json(formatResponse({user_servers: []}));
+})
+
+
 module.exports = router;

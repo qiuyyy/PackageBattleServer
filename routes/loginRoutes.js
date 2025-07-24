@@ -6,12 +6,12 @@ const jwt = require('jsonwebtoken'); // 新增jwt库
 const axios = require('axios');
 const GameConfig = require('../tools/GameConfig');
 
-async function handleUserLogin(openid, res) {
+async function handleUserLogin(openid, res, isNew) {
   if (!openid) {
     return res.status(500).json({ error: 'Failed to get openid' });
   }
 
-  var new_player = false;
+  var new_player = isNew || false;
   var user = await User.findOne({ openid: openid });
   var previousLoginTime = null; // 上次登录时间
   console.log("login find user:", user);
@@ -200,10 +200,154 @@ function updateWeeklyData(user) {
   return user;
 }
 
+// token登录
 router.post('/user/login', async (req, res) => {
     const openid = req.body.uuid;
     await handleUserLogin(openid, res);
 });
+
+// 账号注册
+router.post('/user/accountRegister', async (req, res) => {
+    const openid = req.body.uuid;
+    const username = req.body.username; // 用户名?
+    const password = req.body.password; // 密码?
+    if (!openid) {
+      return res.status(500).json({ error: 'Failed to get openid' });
+    }
+    if (!username) {
+      return res.json(formatResponse({},GameConfig.NetCode.FAIL, "Account_Not_Input_Error"));
+    }
+    if (!password) {
+      return res.json(formatResponse({},GameConfig.NetCode.FAIL, "Password_Not_Input_Error"));
+    }
+    var user = await User.findOne({ nickname: username});
+    if (user) {
+      // 有用户名 账号已存在
+      return res.json(formatResponse({},GameConfig.NetCode.FAIL, "Account_Exist_Error"));
+    } else {
+      // 注册
+      user = new User({
+        nickname: username,
+        password: password,
+        openid: openid,
+        last_login_time: new Date().getTime(), // 更新登录时间,
+        Regdate: new Date().getTime(), // 添加注册时间
+      });
+      initNewPlayerData(user);
+      await user.save();
+      await handleUserLogin(openid, res, true);
+    }
+});
+// 账号登录
+router.post('/user/accountLogin', async (req, res) => {
+    const openid = req.body.uuid;
+    const username = req.body.username; // 用户名?
+    const password = req.body.password; // 密码?
+    if (!openid) {
+      return res.status(500).json({ error: 'Failed to get openid' });
+    }
+    if (username && password) {
+      var user = await User.findOne({ nickname: username});
+      if (user) {
+        // 有用户名
+        // 验证密码
+        const isPasswordValid = await user.comparePassword(password);
+        if (!isPasswordValid) {
+          return res.json(formatResponse({},GameConfig.NetCode.FAIL, "Login_Password_Error"));
+        }
+        // 使用用户名密码登录
+        //更新openid
+        user = await updateOpenid(user, openid)
+        if (user) {
+          await user.save();
+        } else {
+          return res.json(formatResponse({},GameConfig.NetCode.LoginAccountAgain));
+        }
+        await handleUserLogin(openid, res);
+      } else {
+        return res.json(formatResponse({},GameConfig.NetCode.FAIL, "Account_Not_Exist_Error"));
+      }
+    } else {
+      var user = await User.findOne({ openid: openid});
+      if (user) {
+        // 直接登录
+        await handleUserLogin(openid, res);
+      } else {
+        // 需要用户输入账号密码
+        res.json(formatResponse({},GameConfig.NetCode.LoginAccountAgain));
+      }
+    }
+});
+
+// 保存密保问题
+router.post('/user/saveSafeQuestion', async (req, res) => {
+    const user = req.user;
+    user.safeQuestion = {
+      id: req.body.id,
+      answer: req.body.answer
+    };
+    await user.save();
+    res.json(formatResponse({}));
+})
+
+// 获取密保问题id
+router.post('/user/getSafeQuestionId', async (req, res) => {
+  const username = req.body.username;
+  if (!username) {
+    return res.json(formatResponse({},GameConfig.NetCode.FAIL, "Account_Not_Input_Error"));
+  }
+  var user = await User.findOne({ nickname: username});
+  if (user) {
+    if (user.safeQuestion) {
+      res.json(formatResponse({id: user.safeQuestion.id}));
+    } else {
+      res.json(formatResponse({},GameConfig.NetCode.FAIL, "SafeQuestion_Not_Set_Error"));
+    }
+  } else {
+    res.json(formatResponse({},GameConfig.NetCode.FAIL, "Account_Not_Exist_Error"));
+  }
+})
+
+// 验证密保问题&重置密码
+router.post('/user/resetPassword', async (req, res) => {
+  const username = req.body.username;
+  if (!username) {
+    return res.json(formatResponse({},GameConfig.NetCode.FAIL, "Account_Not_Input_Error"));
+  }
+  var user = await User.findOne({ nickname: username});
+  if (!user) {
+    return res.json(formatResponse({},GameConfig.NetCode.FAIL, "Account_Not_Exist_Error"));
+  }
+  if (user.safeQuestion.answer == req.body.answer) {
+    // 重置密码
+    user.password = req.body.newPassword;
+    await user.save();
+    res.json(formatResponse({}));
+  } else {
+    res.json(formatResponse({},GameConfig.NetCode.FAIL, "SafeQuestion_Error"));
+  }
+})
+
+// 更新用户openid
+async function updateOpenid(user, newOpenid) {
+    try {
+        if (!user) {
+            console.log('未找到用户');
+            return false;
+        }
+        // 检查新的 openid 是否已存在
+        const existingUser = await User.findOne({ openid: newOpenid });
+        if (existingUser) {
+            console.log('新的 openid 已被使用');
+            return false;
+        }
+        // 更新 openid
+        user.openid = newOpenid;
+        return user;
+    } catch (error) {
+        console.error('更新 openid 时出错:', error);
+    }
+}
 
 // 接入抖音登录-获取token
 router.post('/sdk/getWdToken', async (req, res) => {
