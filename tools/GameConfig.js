@@ -132,12 +132,48 @@ module.exports = {
         "GetOfflineReward": 16, // 获取巡逻奖励
         "GetWeapon": 21, // 获得武器
         "WeaponUpgrade": 22, // 武器升级
-        "WatchAd": 23, // 看广告
+        "WatchAd": 23, // 看广告(不需要后端判断 有写额外接口)
         "DailyShopBuy": 24, // 每日商店购买物品
         "CostGem": 26, // 消耗钻石
     },
 
     levelConfig:{}, // 玩家等级配置
+
+    /**=========================商店相关 */
+    // 材料宝箱奖池内容 {itemId: 物品id, prob: 概率, count: 数量}
+    shopBox_3_reward: [
+        {itemId: 6, prob: 125, count: 50},
+        {itemId: 6, prob: 63, count: 80},
+        {itemId: 6, prob: 32, count: 50},
+        {itemId: 110, prob: 125, count: 50},
+        {itemId: 110, prob: 63, count: 80},
+        {itemId: 110, prob: 5, count: 100},
+        {itemId: 110, prob: 32, count: 150},
+        {itemId: 110, prob: 13, count: 200},
+        {itemId: 134, prob: 32, count: 50},
+        {itemId: 134, prob: 13, count: 1},
+        {itemId: 134, prob: 7, count: 2},
+        {itemId: 137, prob: 63, count: 10},
+        {itemId: 137, prob: 47, count: 20},
+        {itemId: 137, prob: 32, count: 30},
+        {itemId: 121, prob: 32, count: 1},
+        {itemId: 122, prob: 13, count: 1},
+        {itemId: 123, prob: 63, count: 1},
+        {itemId: 135, prob: 7, count: 1},
+        {itemId: 136, prob: 19, count: 5},
+        {itemId: 136, prob: 13, count: 10},
+        {itemId: 136, prob: 7, count: 15},
+        {itemId: 133, prob: 19, count: 10},
+        {itemId: 133, prob: 10, count: 20},
+        {itemId: 3, prob: 13, count: 1},
+        {itemId: 3, prob: 7, count: 2},
+        {itemId: 3, prob: 4, count: 3},
+        {itemId: 109, prob: 7, count: 1},
+        {itemId: 109, prob: 4, count: 2},
+        {itemId: 139, prob: 63, count: 20},
+        {itemId: 139, prob: 32, count: 50},
+        {itemId: 139, prob: 13, count: 100},
+    ],
 
     /**=========================离线相关 */
     fastBattleDailyVideoCount: 1, //每天扫荡广告获取次数

@@ -1,0 +1,343 @@
+[
+  {
+    "ID": 1,
+    "BoxAni": "1",
+    "Name": 560,
+    "Desc": 562,
+    "BoxDesc": 0,
+    "Type": 1,
+    "Key": 134,
+    "CurrencyID": 1,
+    "Consume1": 50,
+    "Consume2": 500,
+    "FloorsLimit": 10,
+    "FloorsDropId_extraReward": [
+      [
+        703,
+        10000
+      ],
+      [
+        704,
+        100
+      ],
+      [
+        705,
+        50
+      ]
+    ],
+    "Reward": [
+      [
+        701,
+        6000
+      ],
+      [
+        702,
+        3000
+      ],
+      [
+        703,
+        1000
+      ]
+    ],
+    "RewardLow": [
+      [
+        701,
+        6000
+      ],
+      [
+        702,
+        3000
+      ]
+    ],
+    "HighCount": 3,
+    "DailyFreetime": 1,
+    "FreetimeCD": 86400,
+    "dailyCount": 999,
+    "startTime": "2024-01-18 00:00:00",
+    "endTime": "2099-01-01 23:59:59",
+    "oddsShow": 564
+  },
+  {
+    "ID": 2,
+    "BoxAni": "3",
+    "Name": 561,
+    "Desc": 563,
+    "BoxDesc": 0,
+    "Type": 1,
+    "Key": 135,
+    "CurrencyID": 1,
+    "Consume1": 150,
+    "Consume2": 1500,
+    "FloorsLimit": 10,
+    "FloorsDropId_extraReward": [
+      [
+        704,
+        990
+      ],
+      [
+        705,
+        90
+      ],
+      [
+        706,
+        8
+      ],
+      [
+        707,
+        2
+      ]
+    ],
+    "Reward": [
+      [
+        702,
+        6000
+      ],
+      [
+        703,
+        3000
+      ],
+      [
+        704,
+        1000
+      ]
+    ],
+    "RewardLow": [
+      [
+        702,
+        6000
+      ],
+      [
+        703,
+        3000
+      ]
+    ],
+    "HighCount": 3,
+    "DailyFreetime": 1,
+    "FreetimeCD": 259200,
+    "dailyCount": 999,
+    "startTime": "2024-01-18 00:00:00",
+    "endTime": "2099-01-01 23:59:59",
+    "oddsShow": 565
+  },
+  {
+    "ID": 3,
+    "BoxAni": "2",
+    "Name": 678,
+    "Desc": 0,
+    "BoxDesc": 0,
+    "Type": 2,
+    "Key": 0,
+    "CurrencyID": 2,
+    "Consume1": 100,
+    "Consume2": 1000,
+    "FloorsLimit": 0,
+    "FloorsDropId_extraReward": [],
+    "Reward": [
+      [
+        142,
+        10000
+      ]
+    ],
+    "RewardLow": [],
+    "HighCount": 0,
+    "DailyFreetime": 0,
+    "FreetimeCD": 0,
+    "dailyCount": 999,
+    "startTime": "2024-01-18 00:00:00",
+    "endTime": "2099-01-01 23:59:59",
+    "oddsShow": 679
+  },
+  {
+    "ID": 4,
+    "BoxAni": null,
+    "Name": 824,
+    "Desc": 0,
+    "BoxDesc": 826,
+    "Type": 3,
+    "Key": 151,
+    "CurrencyID": 0,
+    "Consume1": 0,
+    "Consume2": 0,
+    "FloorsLimit": 0,
+    "FloorsDropId_extraReward": [],
+    "Reward": [
+      [
+        818,
+        3000
+      ],
+      [
+        819,
+        2500
+      ],
+      [
+        820,
+        1500
+      ],
+      [
+        824,
+        3000
+      ]
+    ],
+    "RewardLow": [],
+    "HighCount": 0,
+    "DailyFreetime": 0,
+    "FreetimeCD": 0,
+    "dailyCount": 999,
+    "startTime": "2024-01-18 00:00:00",
+    "endTime": "2099-01-01 23:59:59",
+    "oddsShow": 829
+  },
+  {
+    "ID": 5,
+    "BoxAni": null,
+    "Name": 825,
+    "Desc": 828,
+    "BoxDesc": 827,
+    "Type": 3,
+    "Key": 152,
+    "CurrencyID": 0,
+    "Consume1": 0,
+    "Consume2": 0,
+    "FloorsLimit": 10,
+    "FloorsDropId_extraReward": [
+      [
+        823,
+        10000
+      ]
+    ],
+    "Reward": [
+      [
+        821,
+        3000
+      ],
+      [
+        822,
+        2500
+      ],
+      [
+        823,
+        1500
+      ],
+      [
+        825,
+        3000
+      ]
+    ],
+    "RewardLow": [
+      [
+        821,
+        3500
+      ],
+      [
+        822,
+        3000
+      ],
+      [
+        825,
+        3500
+      ]
+    ],
+    "HighCount": 3,
+    "DailyFreetime": 0,
+    "FreetimeCD": 0,
+    "dailyCount": 999,
+    "startTime": "2024-01-18 00:00:00",
+    "endTime": "2099-01-01 23:59:59",
+    "oddsShow": 830
+  },
+  {
+    "ID": 6,
+    "BoxAni": null,
+    "Name": 925,
+    "Desc": 0,
+    "BoxDesc": 927,
+    "Type": 4,
+    "Key": 158,
+    "CurrencyID": 0,
+    "Consume1": 0,
+    "Consume2": 0,
+    "FloorsLimit": 10,
+    "FloorsDropId_extraReward": [
+      [
+        771,
+        10000
+      ]
+    ],
+    "Reward": [
+      [
+        769,
+        727
+      ],
+      [
+        770,
+        256
+      ],
+      [
+        771,
+        17
+      ]
+    ],
+    "RewardLow": [],
+    "HighCount": 0,
+    "DailyFreetime": 0,
+    "FreetimeCD": 0,
+    "dailyCount": 999,
+    "startTime": "2024-01-18 00:00:00",
+    "endTime": "2099-01-01 23:59:59",
+    "oddsShow": 923
+  },
+  {
+    "ID": 7,
+    "BoxAni": null,
+    "Name": 926,
+    "Desc": 0,
+    "BoxDesc": 928,
+    "Type": 4,
+    "Key": 159,
+    "CurrencyID": 0,
+    "Consume1": 0,
+    "Consume2": 0,
+    "FloorsLimit": 10,
+    "FloorsDropId_extraReward": [
+      [
+        772,
+        10000
+      ]
+    ],
+    "Reward": [
+      [
+        770,
+        775
+      ],
+      [
+        771,
+        204
+      ],
+      [
+        772,
+        20
+      ],
+      [
+        776,
+        1
+      ]
+    ],
+    "RewardLow": [
+      [
+        770,
+        775
+      ],
+      [
+        771,
+        204
+      ]
+    ],
+    "HighCount": 3,
+    "DailyFreetime": 0,
+    "FreetimeCD": 0,
+    "dailyCount": 999,
+    "startTime": "2024-01-18 00:00:00",
+    "endTime": "2099-01-01 23:59:59",
+    "oddsShow": 924
+  }
+]

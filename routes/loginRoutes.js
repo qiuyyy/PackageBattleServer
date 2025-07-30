@@ -146,6 +146,25 @@ function updateDailyData(user) {
     {Count: 50, Discount: 10, Id: 2, ItemId: 110, Left: 2, Price: 20, PriceType: 0, PriceType2: "1,1", Time: 0, priceType2List: [1, 1]},
     {Count: 100, Discount: 10, Id: 3, ItemId: 2, Left: 3, Price: 50, PriceType: 2, PriceType2: "0,0,0", Time: 0, priceType2List: [0, 0, 0]},
   ]
+  let oldData = user.ShopBox || [];
+  user.ShopBox = [];
+  // 重置商店宝箱
+  [1, 2, 3].forEach((id, index) => {
+    let boxConfig = getConfigData("ShopBox").find(box => box.ID == id);
+    if (boxConfig) {
+      user.ShopBox[index] = {
+        Id: id, 
+        EndTime: Math.floor(new Date(boxConfig.endTime.replace(' ', 'T') + 'Z').getTime() / 1000), 
+        StartTime: Math.floor(new Date(boxConfig.startTime.replace(' ', 'T') + 'Z').getTime() / 1000), 
+        DailyCount: boxConfig.dailyCount, 
+        FloorsNum: oldData[index] && oldData[index].FloorsNum || boxConfig.FloorsLimit,
+        NextFreeTime: 0,
+        RemainFreeCount: boxConfig.DailyFreetime,
+        TodayDrawCount: 0,
+      }
+    }
+  })
+  
   // 重置每日次数
   user.TodayCounts = { 
     RereshStoreNum: 0,

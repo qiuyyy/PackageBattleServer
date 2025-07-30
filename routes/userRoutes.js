@@ -22,16 +22,28 @@ router.post('/user/playerInfo', async (req, res) => {
   // user.api.missionChallengeInfo = [{task_id: 101, draw: 0, num: 1}]
   // ===============================
 
+  // 修复离线时间
   if (user.DrawOfflineTime == 0) {
     user.DrawOfflineTime = Math.floor(new Date().getTime() / 1000);
     await req.user.save();
   }
-  res.json(formatResponse({
-    info: {
-      ...user,
-      ServTimestap: Math.floor(new Date().getTime() / 1000), // 服务器时间戳
-    },
-  }));
+  // FIXME: 小游戏为旧版前端代码 需要修改返回数据
+  if (req.body.subChannel == "ttxd") {
+    user.RoleEquips = [];
+    res.json(formatResponse({
+      info: {
+        ...user,
+        ServTimestap: Math.floor(new Date().getTime() / 1000), // 服务器时间戳
+      },
+    }));
+  } else {
+    res.json(formatResponse({
+      info: {
+        ...user,
+        ServTimestap: Math.floor(new Date().getTime() / 1000), // 服务器时间戳
+      },
+    }));
+  }
 });
 
 // 返回主页刷新信息

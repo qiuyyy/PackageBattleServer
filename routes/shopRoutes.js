@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { formatResponse, getRandomWeapon, saveUserItem, getRandomByProb, checkItemIsEnough, pushItemsToList,achieveTaskRecord, saveUserItemList } = require('../tools/CustomUtils');
+const { formatResponse, getConfigData, saveUserItem, getRandomByProb, checkItemIsEnough, pushItemsToList,achieveTaskRecord, saveUserItemList } = require('../tools/CustomUtils');
 var GameConfig = require("../tools/GameConfig");
 
 //=======================每日商店=======================
@@ -96,6 +96,99 @@ router.post('/shop/dailyStoreBuy', async (req, res) => {
     } catch (err) {
         res.status(500).json({ errcode: 1, message: 'Server error' + err });
     }
+});
+
+
+// 开宝商店宝箱
+router.post("/gear/draw", async (req, res) => {
+    const user = req.user;
+    let boxId = req.body.id;
+    let boxConfig = getConfigData("ShopBox").find(e => e.ID == boxId);
+    let userBox = user.ShopBox.find(e => e.Id == boxId);
+    let itemId = 0; // 消耗品id
+    let itemCount = 0; // 消耗品数量
+    let rewardCount = 1; //奖励数量/开宝箱数量
+    if (!userBox) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+    }
+    if (req.body.isAd) {
+        // 判断免费次数
+        if (userBox.RemainFreeCount <= 0) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "COUNT_NOT_ENOUGH"));
+        }
+        userBox.RemainFreeCount --;
+    } else {
+        // 判断消耗
+        if (req.body.multi) {
+            // 10次
+            itemId = boxConfig.Key;
+            if (!checkItemIsEnough(user, [[itemId, -10]])) {
+                // 钥匙不足 使用货币
+                itemId = boxConfig.CurrencyID;
+                itemCount = boxConfig.Consume2;
+            }
+            if (!checkItemIsEnough(user, [[itemId, -itemCount]])) {
+                // 货币不足
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+            }
+            rewardCount = 10;
+        } else {
+            // 1次
+            itemId = boxConfig.Key;
+            if (!checkItemIsEnough(user, [[itemId, -1]])) {
+                // 钥匙不足 使用货币
+                itemId = boxConfig.CurrencyID;
+                itemCount = boxConfig.Consume1;
+            }
+            if (!checkItemIsEnough(user, [[itemId, -itemCount]])) {
+                // 货币不足
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+            }
+        }
+
+    }
+    // 消耗
+    let costItem = [[itemId, -itemCount]];
+    // 获得
+    let rewardList = []; //奖池列表
+    let rewardItem = []; // 奖励列表
+    if (boxConfig.Type == 2) {
+        // 材料宝箱 物品id,概率,数量 配置在config中
+        rewardList = GameConfig.shopBox_3_reward;
+        let rewardListObj = {};
+        rewardList.forEach((r, i) => {
+            rewardListObj[i] = r.prob;
+        })
+        for (let index = 0; index < rewardCount; index++) {
+            let rIndex = getRandomByProb(rewardListObj)
+            rewardItem.push([rewardList[rIndex].itemId, rewardList[rIndex].count]);
+        }
+    } else {
+        for (let index = 0; index < rewardCount; index++) {
+            // 是否必得
+            if (userBox.FloorsNum == 1) {
+                rewardList = boxConfig.FloorsDropId_extraReward;
+                userBox.FloorsNum = boxConfig.FloorsLimit;
+            } else {
+                rewardList = boxConfig.Reward;
+                userBox.FloorsNum--;
+            }
+            let rewardListObj = {};
+            rewardList.forEach(e => {
+                rewardListObj[e[0]] = e[1];
+            })
+            rewardItem.push([getRandomByProb(rewardListObj), 1]);
+        }
+    }
+    
+    // 组合消耗和获得 并 保存
+    let items = costItem.concat(rewardItem);
+    let obj = saveUserItemList(user, items, true);
+    await user.save();
+    res.json(formatResponse({
+        ...obj,
+        ShopBox: user.ShopBox,
+    }));
 });
 
 

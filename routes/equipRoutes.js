@@ -461,7 +461,7 @@ getEquipPrintIdByPart = function(part) {
 // 宝石镶嵌
 router.post("/gear/wearGem", async (req, res) => {
     const user = req.user;
-    // 检查是否与该宝石
+    // 检查是否有该宝石
     let gemData = user.Gems.filter(i => i._id == req.body.gem);
     if (!gemData) {
         return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "未拥有该宝石"));
@@ -516,6 +516,21 @@ router.post("/gear/unwearGem", async (req, res) => {
     }));
 })
 
+// 宝石锁定/解锁
+router.post("/gear/lockGem", async (req, res) => {
+    const user = req.user;
+    let gem = user.Gems.find(e => e._id == req.body.id);
+    if (!gem) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "未拥有该宝石"));
+    }
+    // 保存
+    gem.Locked = gem.Locked ? 0 : 1;
+    await user.save();
+    res.json(formatResponse({
+        Gem: gem
+    }));
+})
+
 // 更换镶嵌方案
 router.post("/gear/select", async (req, res) => {
     const user = req.user;
@@ -539,6 +554,13 @@ router.post("/gear/remakeGem", async (req, res) => {
         return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "未拥有该宝石"));
     }
     let gemConfig = getConfigData("Gem").find(e => e.Id == gem.Cfgid);
+    // 消耗品
+    let cost = gemConfig.RefreshItemId;
+    if (!checkItemIsEnough(user, cost)){
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+    }
+    // 消耗
+    let resultList = saveUserItemList(user, cost);
     // 保存
     let newId = getRandomGem(gemConfig.GemQuality, gemConfig.Type, 1)[0];
     let newGem = {};
@@ -552,7 +574,8 @@ router.post("/gear/remakeGem", async (req, res) => {
 
     await user.save();
     res.json(formatResponse({
-        Gem: newGem
+        Gem: newGem,
+        ...resultList
     }));
 })
 

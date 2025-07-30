@@ -147,6 +147,17 @@ const GearGemSchema = new mongoose.Schema({
   Hole: {type: Number, default: 0 }, // 孔位 1-5
   Gem: { type: String, default: "" }, // 宝石_id
 })
+// 宝石宝箱
+const ShopBoxSchema = new mongoose.Schema({
+  Id: {type: Number, default:0}, // 宝箱id (对应表ShopBox)
+  EndTime: { type: Number, default: 0 }, // 结束时间
+  StartTime: { type: Number, default: 0 }, // 开始时间
+  DailyCount: { type: Number, default: 999 }, // 每日可领取次数
+  FloorsNum: { type: Number, default: 0 }, // 再抽{0}次必得
+  NextFreeTime: { type: Number, default: 0 }, // 下一次免费时间
+  RemainFreeCount: { type: Number, default: 0 }, // 剩余免费次数
+  TodayDrawCount: { type: Number, default: 0 }, // 今日领取次数
+})
 
 const neighborUserSchema = new mongoose.Schema({
   openid: { type: String, required: true, unique: true ,index: true}, // 用户唯一标识
@@ -186,6 +197,7 @@ const neighborUserSchema = new mongoose.Schema({
   Gems: {type: [GemSchema], default: []}, //拥有的宝石
   GearGems: {type: Object, default: {1:[], 2:[], 3:[]}, of: [GearGemSchema]}, //宝石镶嵌 三个方案
   safeQuestion: {type: Object, default: {id: 0, answer: ""}}, // 密保问题
+  ShopBox: {type: [ShopBoxSchema], default: []}, // 宝石宝箱
 });
 
 // 保存前加密密码

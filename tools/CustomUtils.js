@@ -174,6 +174,16 @@ module.exports = {
                 gemIds.push(id);
             }
             obj = module.exports.addGemToUser(user, gemIds);
+        
+        } else if (itemId >= 701 && itemId <= 707) {
+            // 随机宝石
+            let gemIds = []; //宝石id
+            for (let i = 0;i < num;i++) {
+                let gemQuality = itemId % 100;
+                let id = module.exports.getRandomGem(gemQuality)[0];
+                gemIds.push(id);
+            }
+            obj = module.exports.addGemToUser(user, gemIds);
         } else {
             // 背包物品 || 天赋书
             let bagItem = user.api.bagInfo.find(item => item.Itemid == itemId);
@@ -188,13 +198,21 @@ module.exports = {
         return obj;
     },
 
-    // 存储物品列表
-    saveUserItemList(user, list) {
+    // 存储物品列表 isRepeated-是否随机物品只随机一次,数量直接赋值
+    saveUserItemList(user, list, isRepeated) {
         let obj = {};
         list.forEach(element => {
             const itemId = element[0];
             const num = element[1];
-            let resObj = module.exports.saveUserItem(user, itemId, num);
+            let resObj = {};
+            if (isRepeated) {
+                resObj = module.exports.saveUserItem(user, itemId, 1);
+                for (let key in resObj) {
+                    resObj[key][0][1] = num;
+                }
+            } else {
+                resObj = module.exports.saveUserItem(user, itemId, num);
+            }
             if (resObj.items) {
                 obj.items = module.exports.pushItemsToList(obj.items, resObj.items);
             }
@@ -423,12 +441,18 @@ module.exports = {
         let ids = [];
         for (let i = 0; i < count; i++) {
             let id = module.exports.getRandomElement(list).Id;
-            ids.push(id);
+            // 如果Item表中没有该物品 重新获取
+            let itemConfig = module.exports.getConfigData("Item").filter(i => i.id == id);
+            if (!itemConfig || !itemConfig.length) {
+                i --;
+            } else {
+                ids.push(id);
+            }
         }
         return ids;
     },
 
-    // 随机获取数值的一个元素
+    // 随机获取数组的一个元素(概率平均)
     getRandomElement(arr) {
         if (!arr) return null;
         let index = Math.floor(Math.random() * arr.length);
