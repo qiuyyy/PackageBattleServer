@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-const { formatResponse ,saveUserItem, saveUserItemList, checkItemIsEnough,achieveTaskRecord} = require('../tools/CustomUtils');
+const { formatResponse ,saveUserItem, saveUserItemList, checkItemIsEnough,achieveTaskRecord, getConfigData} = require('../tools/CustomUtils');
 const router = express.Router();
 var GameConfig = require("../tools/GameConfig");
 
@@ -193,6 +193,114 @@ router.post('/talent/upgradeOneKey', async (req, res) => {
       TalentLeft: user.TalentLeft,
       TalentRight: user.TalentRight
     }
+  }));
+})
+
+// 食堂信息
+router.post("/restaurant/info", async (req, res) => {
+  const maxCount = 60; //存储餐食上限
+  const user = req.user;
+  const now = new Date();
+  const nowTime = Math.floor(now.getTime() / 1000); //当前时间戳
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); //今日凌晨的时间戳（毫秒）
+  let todayTime = Math.floor((now.getTime() - midnight) / 1000); //从今日凌晨到现在
+  let restConfig = getConfigData("Restaurant");
+  if (!user.Restaurant || !user.Restaurant.NextTime) {
+    // 初始化食堂信息
+    let nextCfg = restConfig.find(rest => {
+      return rest.GetBootyTime > todayTime;
+    }); // 下次制作餐食数据
+    if (!nextCfg) {
+      // 过了夜宵制作时间 下次制作转天早餐
+      nextCfg = restConfig[0];
+      midnight = midnight + 24 * 3600000;
+    } 
+    const nextTime = Math.floor((midnight + nextCfg.GetBootyTime * 1000) / 1000); //下次制作完成时间戳
+    user.Restaurant = {
+      Foods: [],
+      NextTime: nextTime,
+    }
+  }
+  
+  // 制作餐食
+  while (user.Restaurant.NextTime <= nowTime) {
+    const curDate = new Date(user.Restaurant.NextTime * 1000);
+    const curMidnight = new Date(curDate.getFullYear(), curDate.getMonth(), curDate.getDate()).getTime();
+    let curDur = Math.floor((curDate.getTime() - curMidnight) / 1000); // 出餐时间距当日凌晨时间
+    let curCfg = restConfig.find(rest => {
+      return rest.GetBootyTime == curDur;
+    }); // 本次制作餐食数据
+    user.Restaurant.Foods.push([
+      curCfg.Id,
+      user.Restaurant.NextTime + curCfg.SaveTime,
+    ])
+    if (user.Restaurant.Foods.length > maxCount) {
+      // 超过最大数量 去掉第一个
+      user.Restaurant.Foods.shift();
+    }
+    // 计算下次制作时间
+    if (curCfg.Id == 4) {
+      // 需要转天制作
+      let nextCfg = restConfig.find(rest => {
+        return rest.Id == 1;
+      }); // 下次制作餐食数据
+      user.Restaurant.NextTime = curMidnight / 1000 + 24*3600 + nextCfg.GetBootyTime;
+    } else {
+      // 当天制作
+      let nextCfg = restConfig.find(rest => {
+        return rest.Id == curCfg.Id + 1;
+      }); // 下次制作餐食数据
+      user.Restaurant.NextTime = curMidnight / 1000 + nextCfg.GetBootyTime;
+    }
+  }
+
+  // 检查过期餐食
+  user.Restaurant.Foods = user.Restaurant.Foods.filter(food => {
+    return food[1] >= nowTime;
+  })
+  await user.save();
+
+  res.json(formatResponse({
+    Restaurant: user.Restaurant,
+  }));
+})
+
+// 领取餐食
+router.post('/restaurant/claim', async (req, res) => {
+  const user = req.user;
+  const now = new Date();
+  const nowTime = Math.floor(now.getTime() / 1000); //当前时间戳
+  let obj;
+  if (req.body.index == 0) {
+    // 领取全部
+    let rewards = [];
+    user.Restaurant.Foods.forEach(food => {
+      if (food[1] >= nowTime) { // 未过期
+        let foodCfg = getConfigData("Restaurant").find(f => {
+          return f.Id == food[0];
+        })
+        foodCfg && rewards.push(foodCfg.Reward);
+      }
+    })
+    user.Restaurant.Foods = [];
+    obj = saveUserItemList(user, rewards);
+  } else {
+    // 领取指定
+    let food = user.Restaurant.Foods[req.body.index - 1];
+    if (!(food && food[1] >= nowTime)) {
+      // 没有餐食 || 餐食已过期
+      return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+    }
+    user.Restaurant.Foods = user.Restaurant.Foods.splice(req.body.index - 1, 1);
+    let foodCfg = getConfigData("Restaurant").find(f => {
+      return f.Id == food[0];
+    })
+    obj = saveUserItemList(user, [foodCfg.Reward]);
+  }
+  await user.save();
+  res.json(formatResponse({
+    ...obj,
+    Restaurant: user.Restaurant,
   }));
 })
 

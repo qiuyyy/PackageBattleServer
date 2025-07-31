@@ -1,0 +1,42 @@
+[
+  {
+    "Id": 1,
+    "Name": 683,
+    "Reward": [
+      4,
+      15
+    ],
+    "GetBootyTime": 32400,
+    "SaveTime": 2592000
+  },
+  {
+    "Id": 2,
+    "Name": 684,
+    "Reward": [
+      4,
+      15
+    ],
+    "GetBootyTime": 43200,
+    "SaveTime": 2592000
+  },
+  {
+    "Id": 3,
+    "Name": 685,
+    "Reward": [
+      4,
+      15
+    ],
+    "GetBootyTime": 64800,
+    "SaveTime": 2592000
+  },
+  {
+    "Id": 4,
+    "Name": 686,
+    "Reward": [
+      4,
+      15
+    ],
+    "GetBootyTime": 79200,
+    "SaveTime": 2592000
+  }
+]

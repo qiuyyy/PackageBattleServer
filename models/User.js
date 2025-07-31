@@ -158,6 +158,11 @@ const ShopBoxSchema = new mongoose.Schema({
   RemainFreeCount: { type: Number, default: 0 }, // 剩余免费次数
   TodayDrawCount: { type: Number, default: 0 }, // 今日领取次数
 })
+// 食堂
+const RestaurantSchema = new mongoose.Schema({
+  Foods: { type: Array, default: [] }, // [[类型, 过期时间]] 类型: 1-早餐 2-午餐 3-晚餐 4-宵夜
+  NextTime: { type: Number, default: 0 }, // 下一次出餐时间
+})
 
 const neighborUserSchema = new mongoose.Schema({
   openid: { type: String, required: true, unique: true ,index: true}, // 用户唯一标识
@@ -198,6 +203,7 @@ const neighborUserSchema = new mongoose.Schema({
   GearGems: {type: Object, default: {1:[], 2:[], 3:[]}, of: [GearGemSchema]}, //宝石镶嵌 三个方案
   safeQuestion: {type: Object, default: {id: 0, answer: ""}}, // 密保问题
   ShopBox: {type: [ShopBoxSchema], default: []}, // 宝石宝箱
+  Restaurant: {type: RestaurantSchema, default: {Foods: [], NextTime: 0}}, // 食堂信息 
 });
 
 // 保存前加密密码
