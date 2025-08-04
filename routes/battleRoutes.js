@@ -53,6 +53,8 @@ router.post('/battle/sendMissResult', async (req, res) => {
                     // 首次通过第一关 用于新手教学
                     // 增加奖励扳手图纸x10 增加金币x100
                     reward = pushItemsToList(reward, [[3101, 10],[GameConfig.ItemId.Gold, 100]]);
+                    // 记录时间 开始7日签到/挑战
+                    if (user.PassChapter1Time == 0) user.PassChapter1Time = Math.floor(new Date().getTime() / 1000);
                 }
                 // 保存战斗信息
                 user.ChapterID = Math.max(user.battleInfo.configId + 1, user.ChapterID); // 保存通关章节

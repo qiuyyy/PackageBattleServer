@@ -74,6 +74,9 @@ module.exports = {
             if (num < 0) {
                 module.exports.achieveTaskRecord(user, GameConfig.TaskType.CostGem, -num);
             }
+            if (num > 0) {
+                module.exports.achieveTaskRecord(user, GameConfig.TaskType.GetDiamond, num);
+            }
             user.Diamond += num;
         } else if (itemId == GameConfig.ItemId.Power) {
             if (user.Power + num < 0) return false;
@@ -94,7 +97,7 @@ module.exports = {
                 user.Exp -= GameConfig.levelConfig[user.Level - 1].exp; // 扣除经验
                 lvUpReward = module.exports.pushItemsToList(lvUpReward, GameConfig.levelConfig[user.Level - 1].Rewards);
                 user.Level += 1; // 增加等级
-                module.exports.achieveTaskRecord(user, GameConfig.TaskType.LevelReach);
+                module.exports.achieveTaskRecord(user, GameConfig.TaskType.LevelReach, user.Level);
             }
             obj.levelup = {
                 LevelOld: oldLevel, // 旧等级
@@ -188,8 +191,8 @@ module.exports = {
             // 背包物品 || 天赋书
 
             // 武器图纸获取检查是否已有武器, 若有没有则新增武器
-            let itemConfig = module.exports.getConfigData("Item").find(item => item.id == itemId);
-            if (itemConfig.type == 2 && !user.equips.find(e => e.cfgid === itemId - 1000)) {
+            let itemConfig = num > 0 ? module.exports.getConfigData("Item").find(item => item.id == itemId) : null;
+            if (itemConfig && itemConfig.type == 2 && !user.equips.find(e => e.cfgid === itemId - 1000)) {
                 let result = module.exports.addWeaponToUser(user, [itemId - 1000]);
                 obj.equips = result.equips;
                 num --;
@@ -284,6 +287,10 @@ module.exports = {
                 };
                 user.equips.push(weapon);
                 module.exports.achieveTaskRecord(user, GameConfig.TaskType.GetWeapon);
+                let quailty = GameConfig.weaponInfoById[id].EquipQuality;
+                if (quailty == 4) {
+                    module.exports.achieveTaskRecord(user, GameConfig.TaskType.GetSWeapon);
+                }
                 result.items = module.exports.pushItemsToList(result.items, [[id, 1]]);
                 result.equips.push(user.equips.slice(-1)[0]);
             }
@@ -517,15 +524,45 @@ module.exports = {
         return arr;
     },
 
+    // 七日挑战任务达成记录
+    achieveSevendayTaskRecord(user, taskType, num) {
+        let nowTime = Math.floor(new Date().getTime() / 1000);
+        if (nowTime - user.PassChapter1Time > 7 * 24 * 60 * 60) {
+            // 不在活动时间内
+            return user;
+        }
+        if (num == null) num = 1;
+       
+        module.exports.getConfigData("InitialChallengeTask").forEach(i => {
+            if (i.TaskType == taskType && i.Type == 0) {
+                let task = user.SevendayTask_taskList.find(t => t.TaskId == i.ID);
+                if (!task) {
+                    task = {
+                        Num: 0,
+                        Draw: 0,
+                        TaskId: i.ID,
+                    }
+                    user.SevendayTask_taskList.push(task);
+                }
+                i.StatisticsType ? task.Num += num : task.Num = num;
+            }
+        })
+        return user;
+    },
+
     // 任务达成记录 taskType-任务类型:GameConfig.TaskType
     achieveTaskRecord(user, taskType, num) {
         if (num == null) num = 1;
+
+        // 七日挑战任务
+        user = module.exports.achieveSevendayTaskRecord(user, taskType, num);
+
         // 日常任务
         let dailyData = module.exports.getConfigData("RoutineTask").filter(item => item.DailyType == taskType); // 找出该任务类型的任务
         user.DailyTask.daily.forEach(task => {
             dailyData.forEach(data => {
                 if (task.task_id == data.Id) {
-                    task.num += num;
+                    data.AccumulationType ? task.Num += num : task.Num = num;
                 }
             })
         });
@@ -534,7 +571,7 @@ module.exports = {
         user.WeeklyTask.weekly.forEach(task => {
             weeklyData.forEach(data => {
                 if (task.task_id == data.ID) {
-                    task.num += num;
+                    data.AccumulationType ? task.Num += num : task.Num = num;
                 }
             })
         });

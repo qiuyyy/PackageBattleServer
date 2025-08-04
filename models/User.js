@@ -181,6 +181,13 @@ const DailyChallengeSchema = new mongoose.Schema({
   week_end_time: { type: Number, default: 0 } // 周结束时间
 });
 
+// 七日任务
+const SevenDayTaskSchema = new mongoose.Schema({
+  Draw: { type: Boolean, default: false }, // 是否已领取
+  Num: { type: Number, default: 0 }, // 达成次数
+  TaskId: { type: Number, default: 0 }, // 任务ID(对应InitialChallengeTask表)
+})
+
 const neighborUserSchema = new mongoose.Schema({
   openid: { type: String, required: true, unique: true ,index: true}, // 用户唯一标识
   last_login_time: { type: Number, default: Date.now }, // 上次登录时间
@@ -222,11 +229,12 @@ const neighborUserSchema = new mongoose.Schema({
   ShopBox: {type: [ShopBoxSchema], default: []}, // 宝石宝箱
   Restaurant: {type: RestaurantSchema, default: {Foods: [], NextTime: 0}}, // 食堂信息 
   DailyChallenge: {type: DailyChallengeSchema, default: {}}, // 每日挑战
-  PassChapter1Time: {type: Number, default: 0}, // 七日签到开始时间
+  PassChapter1Time: {type: Number, default: 0}, // 七日签到/挑战开始时间
   SigninNewUserDrawIds: {type: String, default: ""}, // 七日签到领取状态
   SigninNewUserDrawTime: {type: Number, default: 0}, // 七日签到领取时间
-  Sevenday2StartTime: {type: Number, default: 0}, // 七日挑战开始时间
-  SevendayTaskDrawIds: {type: String, default: ""}, // 七日挑战领取状态
+  SevendayTaskDrawIds: {type: String, default: ""}, // 七日挑战活跃度宝箱领取状态
+  SevendayTask_taskList: {type: [SevenDayTaskSchema], default: []}, //七日挑战任务
+  SevendayTask_active: {type: Number, default: 0}, //七日挑战活跃度
 });
 
 // 保存前加密密码

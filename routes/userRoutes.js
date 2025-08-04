@@ -154,6 +154,7 @@ router.post('/talent/upgrade', async (req, res) => {
     achieveTaskRecord(user, GameConfig.TaskType.UnlockCommonTalent);
   } else { // 特殊天赋
     user.TalentRight = req.body.id;
+    achieveTaskRecord(user, GameConfig.TaskType.UnlockHighTalent);
   }
 
   await user.save();
@@ -176,12 +177,14 @@ router.post('/talent/upgradeOneKey', async (req, res) => {
     return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
   }
   if (req.body.leftTalentId > user.TalentLeft) { 
+    achieveTaskRecord(user, GameConfig.TaskType.UnlockCommonTalent, req.body.leftTalentId - user.TalentLeft);
     // 升级普通天赋
     user.TalentLeft = req.body.leftTalentId;
   }
   if (req.body.rigthTalentId > user.TalentRight) { 
+    achieveTaskRecord(user, GameConfig.TaskType.UnlockHighTalent, req.body.rigthTalentId - user.TalentRight);
     // 升级特殊天赋
-    user.TalentRight = req.body.id;
+    user.TalentRight = req.body.rigthTalentId;
   }
   // 扣除消耗
   let obj = saveUserItemList(user, req.body.cost);

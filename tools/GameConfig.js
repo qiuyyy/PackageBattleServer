@@ -126,10 +126,14 @@ module.exports = {
         "MissionOverReach": 2, // 通关至主线关卡
         "LevelReach": 3, // 玩家等级达到
         "UnlockCommonTalent": 4, // 解锁普通天赋
+        "UnlockHighTalent": 5, // 解锁高级天赋
+        "GetSWeapon": 6, // 获取S级武器
         "FastBattle": 7, // 扫荡
+        "EquipLvWeapon": 8, // 上阵x级武器
         "KillBoss": 9, // 击败首领
         "KillEnemy": 10, // 击败怪物
         "GetGold": 11, // 获得金币
+        "GetDiamond": 12, // 获得钻石
         "WeaponCall": 13, // 武器召唤
         "MissionPaicipation": 14, // 参与主线关卡
         "BuyOrAdGetPower": 15, // 购买或看视频得体力

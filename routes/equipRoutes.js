@@ -14,6 +14,14 @@ router.post('/equip/tableWear', async (req, res) => {
         if (equip) {
             // 上阵装备
             user.equip_table[req.body.pos] = {equip_id: req.body.cfgid, unlock: 1};
+
+            // 上阵武器等级任务
+            let maxLv = 0
+            user.equip_table.forEach(e => {
+                maxLv = Math.max(user.equips.find(i => i.cfgid == e.equip_id).lv, maxLv)
+            })
+            achieveTaskRecord(user, GameConfig.TaskType.EquipLvWeapon, maxLv);
+            
             await user.save();
             res.json(formatResponse({}));
         } else if (req.body.cfgid == 0) {
@@ -226,8 +234,9 @@ router.post('/cardlucky/start', async (req, res) => {
     const user = req.user;
     const costCurrencyTypeMap = [GameConfig.ItemId.Gold, GameConfig.ItemId.Diamond, GameConfig.ItemId.Diamond];
     const costCurrencyCountMap = [100, 89, 269]; // 花费
+    let cost = [costCurrencyTypeMap[user.cardlucky.draw_reward_idx.length], - costCurrencyCountMap[user.cardlucky.draw_reward_idx.length] * req.body.rate];
     // 检查是否有足够的货币
-    if (!saveUserItem(user, costCurrencyTypeMap[user.cardlucky.draw_reward_idx.length], - costCurrencyCountMap[user.cardlucky.draw_reward_idx.length] * req.body.rate)){
+    if (!checkItemIsEnough(user, [cost])){
         return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
     }
     // 保存倍率
@@ -247,23 +256,12 @@ router.post('/cardlucky/start', async (req, res) => {
     })[idx]; // 奖品
     // 保存已抽取的奖品
     user.cardlucky.draw_reward_idx.push(user.cardlucky.lucky_rewards.indexOf(reward));
-    saveUserItem(user, reward[0], reward[1] * user.cardlucky.rate);
-    // 如果为新武器则解锁
-    let newEquips = [];
-    if (reward[0] >= 1000 && !user.equips.find(e => e.cfgid === reward[0] - 1000)) {
-        newEquips = [{cfgid: reward[0] - 1000, color_cfgid:0,lv: 1, star:0}];
-        achieveTaskRecord(user, GameConfig.TaskType.GetWeapon);
-        user.equips.push(newEquips[0]); // 解锁新武器 
-    }
+    let resultData = saveUserItemList(user, [cost, [reward[0], reward[1] * user.cardlucky.rate]]);
     achieveTaskRecord(user, GameConfig.TaskType.WeaponCall);
     await user.save();
 
     res.json(formatResponse({
-        items: [
-            [costCurrencyTypeMap[user.cardlucky.draw_reward_idx.length - 1], - costCurrencyCountMap[user.cardlucky.draw_reward_idx.length - 1] * user.cardlucky.rate],
-            [reward[0], reward[1] * user.cardlucky.rate]
-        ], // 物品增减
-        equips: newEquips, // 新武器
+        ...resultData,
         reward: [reward[0], reward[1] * user.cardlucky.rate], //获得奖励    
         client: {
             endRefreshTime: Math.floor(user.cardlucky.refresh_time / 1000),

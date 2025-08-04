@@ -240,5 +240,48 @@ router.post("/user/drawSigninNewUser", async (req, res) => {
         ...resultData,
     }));
 })
+// 七日挑战信息
+router.post("/sevenday/info1", async (req, res) => {
+    const user = req.user;
+    
+    res.json(formatResponse({
+        tastList: user.SevendayTask_taskList,
+        active: user.SevendayTask_active,
+    }));
+})
+// 七日挑战领取奖励
+router.post("/sevenday/drawTask", async (req, res) => {
+    const user = req.user;
+    let config = getConfigData("InitialChallengeTask").find(item => item.ID == req.body.id); // 任务配置
+    let task = user.SevendayTask_taskList.find(t => t.TaskId == req.body.id); // 任务数据
+    if (!task) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
+    }
+    task.Draw = 1;
+    user.SevendayTask_active += config.Active;
+    let resultData = saveUserItemList(user, config.Reward);
+
+    await user.save();
+    
+    res.json(formatResponse({
+        ...resultData,
+        active: user.SevendayTask_active,
+    }));
+})
+// 七日挑战领取活力值宝箱
+router.post("/sevenday/drawActive", async (req, res) => {
+    const user = req.user;
+    let config = getConfigData("InitialChallengeActiveReward").find(item => item.ID == req.body.id && item.Type == req.body.type); // 宝箱配置
+    if (config.NeedActive > user.SevendayTask_active) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
+    }
+    user.SevendayTaskDrawIds += user.SevendayTaskDrawIds == "" ? `${req.body.id}` : `,${req.body.id}`;
+    let resultData = saveUserItemList(user, config.Reward);
+    await user.save();
+    
+    res.json(formatResponse({
+        ...resultData,
+    }));
+})
 
 module.exports = router;
