@@ -225,14 +225,20 @@ router.post('/user/signAccumulate', async (req, res) => {
 // 七日签到奖励领取
 router.post("/user/drawSigninNewUser", async (req, res) => {
     const user = req.user;
-    // try {
-    //     res.json(formatResponse({
-    //         ...user.SevenDay2._doc,
-    //         servertime: Math.floor(new Date().getTime() / 1000),
-    //     }));
-    // } catch (err) {
-    //     res.status(500).json({ errcode: 1, message: 'Server error' + err });
-    // }
+    if (user.SevendayTaskDrawIds.indexOf(req.body.id) != -1) {
+        // 已领取
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
+    }
+    // 领取奖励
+    let config = getConfigData("LoginNewUser").find(item => item.Id == req.body.id);
+    let resultData = saveUserItemList(user, config.Rewards);
+    // 记录领取状态
+    user.SigninNewUserDrawIds += user.SigninNewUserDrawIds == "" ? `${req.body.id}` : `,${req.body.id}`;
+    user.SigninNewUserDrawTime = Math.floor(new Date().getTime() / 1000);
+    await user.save();
+    res.json(formatResponse({
+        ...resultData,
+    }));
 })
 
 module.exports = router;

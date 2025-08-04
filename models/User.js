@@ -223,8 +223,10 @@ const neighborUserSchema = new mongoose.Schema({
   Restaurant: {type: RestaurantSchema, default: {Foods: [], NextTime: 0}}, // 食堂信息 
   DailyChallenge: {type: DailyChallengeSchema, default: {}}, // 每日挑战
   PassChapter1Time: {type: Number, default: 0}, // 七日签到开始时间
-  SevendayTaskDrawIds: {type: String, default: ""}, // 七日签到领取状态
+  SigninNewUserDrawIds: {type: String, default: ""}, // 七日签到领取状态
+  SigninNewUserDrawTime: {type: Number, default: 0}, // 七日签到领取时间
   Sevenday2StartTime: {type: Number, default: 0}, // 七日挑战开始时间
+  SevendayTaskDrawIds: {type: String, default: ""}, // 七日挑战领取状态
 });
 
 // 保存前加密密码

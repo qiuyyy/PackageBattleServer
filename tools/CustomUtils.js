@@ -186,6 +186,16 @@ module.exports = {
             obj = module.exports.addGemToUser(user, gemIds);
         } else {
             // 背包物品 || 天赋书
+
+            // 武器图纸获取检查是否已有武器, 若有没有则新增武器
+            let itemConfig = module.exports.getConfigData("Item").find(item => item.id == itemId);
+            if (itemConfig.type == 2 && !user.equips.find(e => e.cfgid === itemId - 1000)) {
+                let result = module.exports.addWeaponToUser(user, [itemId - 1000]);
+                obj.equips = result.equips;
+                num --;
+                obj.items[0][1] --;
+            }
+
             let bagItem = user.api.bagInfo.find(item => item.Itemid == itemId);
             if (!(num > 0 || (bagItem && bagItem.Num + num >= 0))) return false; // 数量不足
             if (bagItem) {
@@ -273,6 +283,7 @@ module.exports = {
                     star:0
                 };
                 user.equips.push(weapon);
+                module.exports.achieveTaskRecord(user, GameConfig.TaskType.GetWeapon);
                 result.items = module.exports.pushItemsToList(result.items, [[id, 1]]);
                 result.equips.push(user.equips.slice(-1)[0]);
             }
