@@ -261,9 +261,9 @@ module.exports = {
             // 检查是否已有该武器 || 随机到同一件武器了
             let userWeapon = user.equips.find(item => item.cfgid == id) || weaponIds.indexOf(id) < i;
             if (userWeapon) {
-                // 已有 添加武器图纸x20
+                // 已有 添加武器图纸x10
                 let printId = id + 1000; // 图纸id
-                result.items = module.exports.pushItemsToList(result.items, module.exports.saveUserItem(user,printId, 20).items);
+                result.items = module.exports.pushItemsToList(result.items, module.exports.saveUserItem(user,printId, 10).items);
             } else {
                 // 新增武器
                 let weapon = {

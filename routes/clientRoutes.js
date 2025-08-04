@@ -16,6 +16,8 @@ router.post('/client/watchAd', async (req, res) => {
   res.json(formatResponse({}));
 })
 
+
+// ========================无用接口===========================
 router.post('/server/getServerList', async (req, res) => {
   res.json(formatResponse({user_servers: []}));
 })
@@ -25,6 +27,12 @@ router.post('/rank/refreshZhanli', async (req, res) => {
 })
 
 router.post('/user/getUserInfo', async (req, res) => {
+  res.json(formatResponse({}));
+})
+router.post('/user/userData', async (req, res) => {
+  res.json(formatResponse({}));
+})
+router.post('/battle/fuhuo', async (req, res) => {
   res.json(formatResponse({}));
 })
 

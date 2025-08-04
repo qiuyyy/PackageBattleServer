@@ -35,7 +35,7 @@ router.post('/shop/refreshDailyStore', async (req, res) => {
         // 消耗
         if (req.body.cost) {
             if (!saveUserItem(user, req.body.cost[0], - req.body.cost[1])) { // 消耗
-                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
             }
         }
 
@@ -68,13 +68,13 @@ router.post('/shop/dailyStoreBuy', async (req, res) => {
             // 消耗钻石
             costId = GameConfig.ItemId.Diamond;
             if (!checkItemIsEnough(user, [[GameConfig.ItemId.Diamond, - item.Price]])) {
-                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
             }
         } else if (item.priceType2List[item.priceType2List.length - item.Left] == 3) {
             // 消耗金币
             costId = GameConfig.ItemId.Gold;
             if (!checkItemIsEnough(user, [[GameConfig.ItemId.Gold, - item.Price]])) {
-                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
             }
         }
         // 购买看广告商品后需要等待
@@ -109,12 +109,12 @@ router.post("/gear/draw", async (req, res) => {
     let itemCount = 0; // 消耗品数量
     let rewardCount = 1; //奖励数量/开宝箱数量
     if (!userBox) {
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
     }
     if (req.body.isAd) {
         // 判断免费次数
         if (userBox.RemainFreeCount <= 0) {
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "COUNT_NOT_ENOUGH"));
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.COUNT_NOT_ENOUGH));
         }
         userBox.RemainFreeCount --;
     } else {
@@ -129,7 +129,7 @@ router.post("/gear/draw", async (req, res) => {
             }
             if (!checkItemIsEnough(user, [[itemId, -itemCount]])) {
                 // 货币不足
-                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
             }
             rewardCount = 10;
         } else {
@@ -142,7 +142,7 @@ router.post("/gear/draw", async (req, res) => {
             }
             if (!checkItemIsEnough(user, [[itemId, -itemCount]])) {
                 // 货币不足
-                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+                return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
             }
         }
 

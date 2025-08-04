@@ -1,14 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { formatResponse, saveUserItem, saveUserItemList, getRandomWeaponBlueprint, formatItemsToObj, formatItemsToArr,pushItemsToList ,achieveTaskRecord} = require('../tools/CustomUtils');
+const { formatResponse, saveUserItem, saveUserItemList, getRandomWeaponBlueprint, formatItemsToObj, formatItemsToArr,pushItemsToList ,achieveTaskRecord, getConfigData} = require('../tools/CustomUtils');
 const GameConfig = require('../tools/GameConfig');
 
 // 开始战斗
 router.post('/battle/sendMissBegin', async (req, res) => {
     // 保存进行中战斗信息
     const user = req.user;
+
+    if (req.body.battle_type == GameConfig.battleType.DAILY_CHALLENGE) {
+        // 每日挑战 检查挑战次数
+        if (user.DailyChallenge.challenge_num >= GameConfig.dailyChallengeMaxCount) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.COUNT_NOT_ENOUGH));
+        }
+    }
+
     const battleId = Math.floor(100000 + Math.random() * 900000); // 生成六位随机数
-    
 
     // 保存战斗信息
     user.battleInfo = {
@@ -17,9 +24,10 @@ router.post('/battle/sendMissBegin', async (req, res) => {
     }; 
     // 减少体力
     if (!saveUserItem(user, GameConfig.ItemId.Power, - GameConfig.battlePowerCost)) {
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
     }
-    achieveTaskRecord(user, GameConfig.TaskType.MissionPaicipation);
+    req.body.battle_type == GameConfig.battleType.COMMON_MISSION && achieveTaskRecord(user, GameConfig.TaskType.MissionPaicipation);
+    let initCoin = req.body.battle_type == GameConfig.battleType.DAILY_CHALLENGE ? 30 : 0; //每日挑战初始战斗币30
     await user.save();
     res.json(formatResponse({
         battleid: battleId,
@@ -27,7 +35,7 @@ router.post('/battle/sendMissBegin', async (req, res) => {
             Power: user.Power, // 体力
             PowerRecoveryStarTime: user.Power < user.MaxPower ? new Date().getTime() : 0, 
         },
-        init_battle_coin: 0, // 初始战斗币
+        init_battle_coin: initCoin, // 初始战斗币
     }));
 });
 
@@ -37,7 +45,7 @@ router.post('/battle/sendMissResult', async (req, res) => {
     achieveTaskRecord(user, GameConfig.TaskType.KillEnemy, req.body.pkg.killEnemy);
     achieveTaskRecord(user, GameConfig.TaskType.KillBoss, req.body.pkg.killBoss);
     if (user.battleInfo && req.body.battleid == user.battleInfo.battleid) { // 验证战斗ID是否一致
-        if (user.battleInfo.battle_type == 1) { // 普通关卡
+        if (user.battleInfo.battle_type == GameConfig.battleType.COMMON_MISSION) { // 普通关卡
             let oldLevel = user.Level; // 旧等级
             let reward = user.battleInfo.reward; // 奖励物品
             if (req.body.Pass) { // 战斗成功
@@ -79,14 +87,14 @@ router.post('/battle/sendMissResult', async (req, res) => {
                     PowerRecoveryStarTime: 0, 
                 },
             }));
-        } else if (req.body.battle_type == 3){ // 精英关卡
+        } else if (user.battleInfo.battle_type == GameConfig.battleType.ELITE_MISSION){ // 精英关卡
             if (req.body.Pass) { // 战斗成功
                 // 保存战斗信息
-                let mission = user.api.missionChallengeInfo.find(item => item.task_id == req.body.configId); // 查找精英关卡信息
+                let mission = user.api.missionChallengeInfo.find(item => item.task_id == user.battleInfo.configId); // 查找精英关卡信息
                 if (!mission) { // 不存在则创建
-                    user.api.missionChallengeInfo.push({ task_id: req.body.configId, draw: 0, num: 1 }); // 保存精英关卡信息
-                } else { // 存在则增加数量
-                    mission.num += 1; // 增加数量
+                    user.api.missionChallengeInfo.push({ task_id: user.battleInfo.configId, draw: 0, num: 1 }); // 保存精英关卡信息
+                // } else { // 存在则增加数量
+                //     mission.num += 1; // 增加数量
                 }
             }
             let reward = user.battleInfo.reward; // 奖励物品
@@ -104,11 +112,49 @@ router.post('/battle/sendMissResult', async (req, res) => {
                 },
                 missionChallengeInfo: user.api.missionChallengeInfo,
             }));
+        } else if (user.battleInfo.battle_type == GameConfig.battleType.DAILY_CHALLENGE){ // 每日挑战
+            user.DailyChallenge.challenge_num ++;
+            user.DailyChallenge.has_pass = req.body.Pass;
+            user.DailyChallenge.kill_boss = req.body.pkg.killBoss;
+            user.DailyChallenge.kill_enemy = req.body.pkg.killEnemy;
+            user.DailyChallenge.kill_boss_max = req.body.Pass ? req.body.pkg.killBoss : 0;
+            user.DailyChallenge.kill_enemy_max = req.body.Pass ? req.body.pkg.killEnemy : 0;
+            await user.save();
+            res.json(formatResponse({
+                kv: {
+                    Power: user.Power, // 体力
+                    PowerRecoveryStarTime: 0, 
+                },
+            }));
         }
     } else {
-        res.json(formatResponse({}, GameConfig.NetCode.FAIL, "BATTLE_ID_NOT_MATCH"));
+        res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.BATTLE_ID_NOT_MATCH));
     }
 });
+
+// 战斗使用消耗品
+router.post("/battle/useBattleRefresh", async (req, res) => {
+    const user = req.user;
+    let obj;
+    if (req.body.type == 1) {
+        // 武器刷新券
+        obj = saveUserItem(user, GameConfig.ItemId.WeaponRefresh, -1);
+        if (!obj) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
+        }
+    } else if (req.body.type == 2) {
+        // 技能刷新券
+        obj = saveUserItem(user, GameConfig.ItemId.SkillRefresh, -1);
+        if (!obj) {
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
+        }
+    }
+    
+    await user.save();
+    res.json(formatResponse({
+        ...obj,
+    }));
+})
 
 // 获取宝箱奖励
 router.post('/battle/drawMissionBoxAny', async (req, res) => {
@@ -138,10 +184,10 @@ router.post('/battle/drawchallenge', async (req, res) => {
     // 保存领取信息
     let challengeInfo = user.api.missionChallengeInfo.find(item => item.task_id == req.body.ChallengeID);
     if (!challengeInfo) {
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"))
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET))
     } else {
         if (challengeInfo.draw == 1) {
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"))
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET))
         } else {
             challengeInfo.draw = 1; // 标记为已领取
         }
@@ -195,7 +241,7 @@ router.post('/battle/drawOfflineEarn', async (req, res) => {
     let rewardHours = Math.floor(((new Date().getTime() / 1000) - user.DrawOfflineTime) / 3600);
     rewardHours = Math.min(24, rewardHours); //最长24小时
     if (rewardHours < 1) {
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
     }
     // 保存领取数据
     user.DrawOfflineTime = Math.floor(new Date().getTime() / 1000);
@@ -229,17 +275,17 @@ router.post('/battle/fastBattle', async (req, res) => {
         // 看广告获取
         // 检查剩余次数
         if (user.TodayCounts.LeftVideoFastBattleCount <= 0) {
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
         }
         user.TodayCounts.LeftVideoFastBattleCount --;
     } else {
         // 检查剩余次数
         if (user.TodayCounts.LeftPowerFastBattleCount <= 0 ) {
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
         }
         // 消耗体力获取
         if (!saveUserItem(user, GameConfig.ItemId.Power, -config.stamina)) {
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "ITEM_NOT_ENOUGH"));
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
         }
         user.TodayCounts.LeftPowerFastBattleCount --;
     }
@@ -258,6 +304,73 @@ router.post('/battle/fastBattle', async (req, res) => {
         },
         ...returnList
     }));
+})
+
+// 每日挑战数据
+router.post("/battle/dailyChallenge", async (req, res) => {
+    const user = req.user;
+    res.json(formatResponse(user.DailyChallenge))
+})
+
+// 每日挑战每日宝箱领取
+router.post("/battle/drawDailyChallenge", async (req, res) => {
+    const user = req.user;
+    // 检查是否已领取
+    if (user.DailyChallenge.draw.indexOf(req.body.box) != -1) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
+    }
+    let cfg = getConfigData("DailyChallenge").find(item => item.ID == user.DailyChallenge.challenge_id);
+    let reward = cfg[`Box${req.body.box}Reward`];
+    let obj = saveUserItemList(user, reward);
+    user.DailyChallenge.draw += `,${req.body.box}`;
+    if (user.DailyChallenge.draw.split(",").length == 5) {
+        // 每日宝箱全部领取
+        user.DailyChallenge.total_num ++; // 增加周挑战完成次数
+    }
+    await user.save();
+    
+    res.json(formatResponse({
+        ...obj,
+        total_num: user.DailyChallenge.total_num,
+    }))
+})
+
+// 每日挑战每周宝箱领取
+router.post("/battle/drawDailyChallengeWeekBox", async (req, res) => {
+    const user = req.user;
+    // 检查是否已领取
+    if (user.DailyChallenge.draw_daily_week_challenge.indexOf(req.body.box) != -1) {
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
+    }
+    let reward = GameConfig.dailyChallengeWeekBoxReward[req.body.box];
+    let obj = saveUserItemList(user, reward);
+    user.DailyChallenge.draw_daily_week_challenge += `,${req.body.box}`;
+    await user.save();
+    
+    res.json(formatResponse({
+        ...obj,
+    }))
+})
+
+// 每日挑战扫荡
+router.post("/battle/skipDailyChallenge", async (req, res) => {
+    const user = req.user;
+    // // 检查是否已领取
+    // if (user.DailyChallenge.draw_daily_week_challenge.indexOf(req.body.box) != -1) {
+    //     return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
+    // }
+    // let reward = GameConfig.dailyChallengeWeekBoxReward[req.body.box];
+    // let obj = saveUserItemList(user, reward);
+    // user.DailyChallenge.draw_daily_week_challenge += `,${req.body.box}`;
+    // await user.save();
+    user.DailyChallenge.challenge_num ++;
+    user.DailyChallenge.kill_boss += user.DailyChallenge.kill_boss_max;
+    user.DailyChallenge.kill_enemy += user.DailyChallenge.kill_enemy_max;
+    await user.save();
+    
+    res.json(formatResponse({
+        info: user.DailyChallenge,
+    }))
 })
 
 module.exports = router;

@@ -8,7 +8,7 @@ router.post('/user/drawSideBarReward', async (req, res) => {
     const user = req.user;
     try {
         if (user.toutiaoSideBarOnce === 1) { // 已领取
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
         }
         let obj = saveUserItem(user, GameConfig.ItemId.Diamond, 100);
         user.toutiaoSideBarOnce = 1; // 已领取

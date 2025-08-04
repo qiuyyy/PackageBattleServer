@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { formatResponse, getSercetKey, addEquipToUser, getConfigData, achieveTaskRecord} = require('../tools/CustomUtils');
+const { formatResponse, getSercetKey, addEquipToUser, getConfigData, achieveTaskRecord, getRandomElement} = require('../tools/CustomUtils');
 const jwt = require('jsonwebtoken'); // 新增jwt库
 const axios = require('axios');
 const GameConfig = require('../tools/GameConfig');
@@ -188,8 +188,45 @@ function updateDailyData(user) {
     dailyRefreshTime: Math.floor(new Date().setHours(0, 0, 0, 0) / 1000 + 24 * 3600), // 转天零点
     TaskDailyActiveDraw : ""
   }
+
+  // 每日挑战
+  let buff = getRandomElement(getConfigData("DailyChallengeBuffEntry").filter(b => {
+    return b.Type == 1
+  }));
+  let debuff = getRandomElement(getConfigData("DailyChallengeBuffEntry").filter(b => {
+    return b.Type == 2 && buff.ConflictId != b.Id
+  }));
+  let weeklyChallengeCount = user.DailyChallenge.total_num || 0;
+  let weeklyDraw = user.DailyChallenge.draw_daily_week_challenge || "";
+  user.DailyChallenge = {
+    buff_add: buff.Id + "", // 增益值
+    buff_del: debuff.Id + "", // 减益值
+    challenge_id: user.ChapterID, // 挑战ID
+    challenge_num: 0, // 挑战次数
+    draw: "", // 每日宝箱领取状态
+    draw_daily_week_challenge: weeklyDraw, // 领取每周挑战宝箱状态
+    has_pass: false, // 是否已通关
+    kill_boss: 0, // 总击杀 boss 数量
+    kill_boss_max: 0, // 整关可击杀boss数量
+    kill_enemy: 0, // 总击杀敌人数量
+    kill_enemy_max: 0, // 整关可击杀敌人数量
+    skip_cost: 20, // 跳过花费
+    total_num: weeklyChallengeCount, // 每周挑战完成数
+    week_end_time: getNextMondayTimestamp() // 周结束时间
+  }
   
   return user;
+}
+
+// 获取下周一凌晨时间戳
+function getNextMondayTimestamp() {
+  const now = new Date();
+  // 计算下周一的日期
+  const nextMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (1 + 7 - now.getDay()) % 7);
+  // 设置时间为零点
+  nextMonday.setHours(0, 0, 0, 0);
+  // 获取下周一零点的时间戳（秒）
+  return Math.floor(nextMonday.getTime() / 1000);
 }
 
 // 更新每周数据

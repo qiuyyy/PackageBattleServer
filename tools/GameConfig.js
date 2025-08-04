@@ -1,5 +1,5 @@
 module.exports = {
-    // 通讯code
+    /**=========================通讯相关 */ 
     NetCode : {
         FAIL: -1,
         OK: 0,
@@ -13,16 +13,18 @@ module.exports = {
         EquipTableEnough: -2
     },
 
-    /** 通讯失败原因
-     * ITEM_NOT_ENOUGH 物品数量不足
-     * BATTLE_ID_NOT_MATCH 战斗id不匹配
-     * FAIL_GET 获取失败
-     * INVALID_EQUIP 装备不存在
-     * FAIL 失败
-     * CODE_IS_ERROR 验证码错误
-     */
+    NetFailMsgCode: {
+        ITEM_NOT_ENOUGH: "ITEM_NOT_ENOUGH", // 物品数量不足
+        BATTLE_ID_NOT_MATCH: "BATTLE_ID_NOT_MATCH", // 战斗id不匹配
+        FAIL_GET: "FAIL_GET", // 获取失败
+        INVALID_EQUIP: "INVALID_EQUIP", // 装备不存在
+        FAIL: "FAIL", // 失败
+        CODE_IS_ERROR: "CODE_IS_ERROR", // 验证码错误
+        COUNT_NOT_ENOUGH: "COUNT_NOT_ENOUGH", // 次数不足
 
-    // 特殊物品id
+    },
+
+    /**=========================物品相关 */ 
     ItemId: {
         Diamond: 1, // 钻石
         Gold: 2, // 金币
@@ -35,6 +37,8 @@ module.exports = {
         Energy: 6000,
         WeaponBlueprintRandom: 110, //随机武器图纸
         EquipBlueprintRandom: 137, //随机装备图纸
+        WeaponRefresh: 122, //武器刷新券
+        SkillRefresh: 123, //技能刷新券
     },
     
     /**=========================体力相关 */ 
@@ -178,4 +182,21 @@ module.exports = {
     /**=========================离线相关 */
     fastBattleDailyVideoCount: 1, //每天扫荡广告获取次数
     faseBattleDailyPowerCount: 3, //每天扫荡体力获取次数
+
+    /**=========================战斗相关 */
+    battleType: {
+        COMMON_MISSION: 1, //普通关卡
+        ELITE_MISSION: 3, // 精英关卡
+        DAILY_CHALLENGE: 4, //每日挑战
+    },
+    dailyChallengeAutoCost: [1, 20], // 每日挑战自动挑战消耗 [物品id, 数量]
+    // 每日挑战周宝箱奖励 box: itemList
+    dailyChallengeWeekBoxReward: {
+        1: [[110, 50], [122, 3]],
+        3: [[2, 300], [109, 1]],
+        5: [[554, 5], [1, 100]],
+    },
+    dailyChallengeMaxCount: 3, //每日挑战最大次数
+
+    /**==========================活动相关 */
 }

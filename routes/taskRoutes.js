@@ -47,7 +47,7 @@ router.post('/task/drawDailyActive', async (req, res) => {
     })
     let data = getConfigData("RoutineActive").find(item => item.ID == req.body.id); // 活跃宝箱数据
     if (!data || totalActivation < data.Requirements) {
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
     }
     // 存储领取状态
     user.DailyTask.TaskDailyActiveDraw += user.DailyTask.TaskDailyActiveDraw=="" ? `${req.body.id}` : `,${req.body.id}`;
@@ -93,7 +93,7 @@ router.post('/task/drawWeeklyActive', async (req, res) => {
     })
     let data = getConfigData("WeeklyActive").find(item => item.ID == req.body.id); // 活跃宝箱数据
     if (!data || totalActivation >= data.Requirements) {
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
     }
     // 存储领取状态
     user.WeeklyTask.TaskWeeklyActiveDraw += user.WeeklyTask.TaskWeeklyActiveDraw=="" ? `${req.body.id}` : `,${req.body.id}`;
@@ -121,7 +121,7 @@ router.post('/task/drawAchievementTask', async (req, res) => {
         let achiveCount = user.Achievement.userInfo[taskData.AchievementsType];
         if (achiveCount < taskData.AchievementsNeed || user.Achievement.achievement.indexOf(req.body.id) == -1) {
             // 次数不足 || 没有该任务
-            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+            return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
         }
         // 记录领取状态
         let oldTaskId = taskData.ID;
@@ -163,7 +163,7 @@ router.post('/user/sign', async (req, res) => {
     // 检查是否可领取
     if (checkIsToday(user.Sign.SignTime)) {
         // 今日已领取宝箱
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
     }
     // 保存领取数据
     user.Sign.SignDay ++;
@@ -199,7 +199,7 @@ router.post('/user/signAccumulate', async (req, res) => {
     let drawList = user.Sign.SignAccumulateDrawFlag.split(",");
     if (user.Sign.SignAccumulate < req.body.realday || drawList.indexOf(req.body.realday+"") != -1) {
         // 不可领取 || 已领取
-        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, "FAIL_GET"));
+        return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
     }
     // 保存领取数据
     let data = getConfigData("LoginAccumulate").find(item => item.day == req.body.realday);
@@ -221,5 +221,18 @@ router.post('/user/signAccumulate', async (req, res) => {
         res.status(500).json({ errcode: 1, message: 'Server error' + err });
     }
 });
+
+// 七日签到奖励领取
+router.post("/user/drawSigninNewUser", async (req, res) => {
+    const user = req.user;
+    // try {
+    //     res.json(formatResponse({
+    //         ...user.SevenDay2._doc,
+    //         servertime: Math.floor(new Date().getTime() / 1000),
+    //     }));
+    // } catch (err) {
+    //     res.status(500).json({ errcode: 1, message: 'Server error' + err });
+    // }
+})
 
 module.exports = router;

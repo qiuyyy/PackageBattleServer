@@ -163,6 +163,23 @@ const RestaurantSchema = new mongoose.Schema({
   Foods: { type: Array, default: [] }, // [[类型, 过期时间]] 类型: 1-早餐 2-午餐 3-晚餐 4-宵夜
   NextTime: { type: Number, default: 0 }, // 下一次出餐时间
 })
+// 每日挑战
+const DailyChallengeSchema = new mongoose.Schema({
+  buff_add: { type: String, default: "" }, // 增益值
+  buff_del: { type: String, default: "" }, // 减益值
+  challenge_id: { type: Number, default: 0 }, // 挑战ID
+  challenge_num: { type: Number, default: 0 }, // 挑战次数
+  draw: { type: String, default: "" }, // 每日宝箱领取状态
+  draw_daily_week_challenge: { type: String, default: "" }, // 领取每周挑战宝箱状态
+  has_pass: { type: Boolean, default: false }, // 是否已通关
+  kill_boss: { type: Number, default: 0 }, // 总击杀 boss 数量
+  kill_boss_max: { type: Number, default: 0 }, // 整关可击杀boss数量
+  kill_enemy: { type: Number, default: 0 }, // 总击杀敌人数量
+  kill_enemy_max: { type: Number, default: 0 }, // 整关可击杀敌人数量
+  skip_cost: { type: Number, default: 0 }, // 跳过花费
+  total_num: { type: Number, default: 0 }, // 每周挑战完成数
+  week_end_time: { type: Number, default: 0 } // 周结束时间
+});
 
 const neighborUserSchema = new mongoose.Schema({
   openid: { type: String, required: true, unique: true ,index: true}, // 用户唯一标识
@@ -204,6 +221,10 @@ const neighborUserSchema = new mongoose.Schema({
   safeQuestion: {type: Object, default: {id: 0, answer: ""}}, // 密保问题
   ShopBox: {type: [ShopBoxSchema], default: []}, // 宝石宝箱
   Restaurant: {type: RestaurantSchema, default: {Foods: [], NextTime: 0}}, // 食堂信息 
+  DailyChallenge: {type: DailyChallengeSchema, default: {}}, // 每日挑战
+  PassChapter1Time: {type: Number, default: 0}, // 七日签到开始时间
+  SevendayTaskDrawIds: {type: String, default: ""}, // 七日签到领取状态
+  Sevenday2StartTime: {type: Number, default: 0}, // 七日挑战开始时间
 });
 
 // 保存前加密密码

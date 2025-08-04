@@ -1,0 +1,137 @@
+[
+  {
+    "Id": 1,
+    "Type": 1,
+    "LanguageId": 340,
+    "Icon": "challenge_buff_1",
+    "Desc": "总血量上限提升百分比",
+    "Value": 0.2,
+    "ConflictId": 0
+  },
+  {
+    "Id": 2,
+    "Type": 1,
+    "LanguageId": 341,
+    "Icon": "challenge_buff_2",
+    "Desc": "所有武器伤害增加百分比",
+    "Value": 0.2,
+    "ConflictId": 0
+  },
+  {
+    "Id": 3,
+    "Type": 1,
+    "LanguageId": 342,
+    "Icon": "challenge_buff_3",
+    "Desc": "所有装备速度增加百分比",
+    "Value": 0.2,
+    "ConflictId": 13
+  },
+  {
+    "Id": 4,
+    "Type": 1,
+    "LanguageId": 343,
+    "Icon": "challenge_buff_4",
+    "Desc": "三格武器伤害增加百分比",
+    "Value": 0.3,
+    "ConflictId": 0
+  },
+  {
+    "Id": 5,
+    "Type": 1,
+    "LanguageId": 344,
+    "Icon": "challenge_buff_5",
+    "Desc": "杀怪经验增加百分比",
+    "Value": 0.3,
+    "ConflictId": 14
+  },
+  {
+    "Id": 6,
+    "Type": 1,
+    "LanguageId": 345,
+    "Icon": "challenge_buff_6",
+    "Desc": "两格武器伤害增加百分比",
+    "Value": 0.3,
+    "ConflictId": 0
+  },
+  {
+    "Id": 7,
+    "Type": 1,
+    "LanguageId": 346,
+    "Icon": "challenge_buff_7",
+    "Desc": "默认格子数量改变为4x4",
+    "Value": 28,
+    "ConflictId": 0
+  },
+  {
+    "Id": 8,
+    "Type": 1,
+    "LanguageId": 347,
+    "Icon": "challenge_buff_8",
+    "Desc": "每进行一次合成，获得n银币",
+    "Value": 2,
+    "ConflictId": 0
+  },
+  {
+    "Id": 9,
+    "Type": 2,
+    "LanguageId": 348,
+    "Icon": "challenge_buff_9",
+    "Desc": "所有敌人生命增加百分比",
+    "Value": 0.3,
+    "ConflictId": 0
+  },
+  {
+    "Id": 10,
+    "Type": 2,
+    "LanguageId": 349,
+    "Icon": "challenge_buff_10",
+    "Desc": "所有敌人攻速增加百分比",
+    "Value": 0.3,
+    "ConflictId": 0
+  },
+  {
+    "Id": 11,
+    "Type": 2,
+    "LanguageId": 350,
+    "Icon": "challenge_buff_11",
+    "Desc": "所有敌人伤害增加百分比",
+    "Value": 0.2,
+    "ConflictId": 0
+  },
+  {
+    "Id": 12,
+    "Type": 2,
+    "LanguageId": 351,
+    "Icon": "challenge_buff_12",
+    "Desc": "所有敌人移速增加百分比",
+    "Value": 0.3,
+    "ConflictId": 0
+  },
+  {
+    "Id": 13,
+    "Type": 2,
+    "LanguageId": 352,
+    "Icon": "challenge_buff_13",
+    "Desc": "所有装备速度减少百分比",
+    "Value": 0.3,
+    "ConflictId": 3
+  },
+  {
+    "Id": 14,
+    "Type": 2,
+    "LanguageId": 353,
+    "Icon": "challenge_buff_14",
+    "Desc": "杀怪经验减少百分比",
+    "Value": 0.3,
+    "ConflictId": 5
+  },
+  {
+    "Id": 15,
+    "Type": 2,
+    "LanguageId": 354,
+    "Icon": "challenge_buff_15",
+    "Desc": "商店刷新价格增加百分比",
+    "Value": 0.3,
+    "ConflictId": 0
+  }
+]
