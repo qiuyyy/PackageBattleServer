@@ -235,6 +235,7 @@ const neighborUserSchema = new mongoose.Schema({
   SevendayTaskDrawIds: {type: String, default: ""}, // 七日挑战活跃度宝箱领取状态
   SevendayTask_taskList: {type: [SevenDayTaskSchema], default: []}, //七日挑战任务
   SevendayTask_active: {type: Number, default: 0}, //七日挑战活跃度
+  RoleSkinWeard: {type: Number, default: 0}, // 穿戴皮肤id
 });
 
 // 保存前加密密码

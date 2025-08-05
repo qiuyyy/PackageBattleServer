@@ -307,6 +307,17 @@ router.post('/restaurant/claim', async (req, res) => {
   }));
 })
 
+// 穿戴皮肤
+router.post('/user/wearRoleSkin', async (req, res) => {
+  const user = req.user;
+  if (req.body.id && !checkItemIsEnough(user, req.body.id, -1)) {
+    return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.ITEM_NOT_ENOUGH));
+  }
+  user.RoleSkinWeard = req.body.id;
+  await user.save();
+  res.json(formatResponse({}));
+})
+
 // 礼包兑换码
 router.post('/user/giftCode', async (req, res) => {
   const user = req.user;
