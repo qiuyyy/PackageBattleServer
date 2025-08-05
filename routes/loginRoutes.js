@@ -26,7 +26,7 @@ async function handleUserLogin(openid, res, isNew) {
     });
     initNewPlayerData(user);
   } else {
-    previousLoginTime = user.last_login_time; // 保存上次登录时间
+    previousLoginTime = isNew ? 0 : user.last_login_time; // 保存上次登录时间
     user.last_login_time = new Date().getTime(); // 更新为本次登录时间
     // 计算体力恢复
     if (user.Power < user.MaxPower && user.PowerRecoveryStartTime > 0) { // 未满体力
