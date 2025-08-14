@@ -225,7 +225,7 @@ router.post('/user/signAccumulate', async (req, res) => {
 // 七日签到奖励领取
 router.post("/user/drawSigninNewUser", async (req, res) => {
     const user = req.user;
-    if (user.SevendayTaskDrawIds.indexOf(req.body.id) != -1) {
+    if (user.SigninNewUserDrawIds.indexOf(req.body.id) != -1) {
         // 已领取
         return res.json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL_GET));
     }

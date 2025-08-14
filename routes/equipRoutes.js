@@ -18,7 +18,9 @@ router.post('/equip/tableWear', async (req, res) => {
             // 上阵武器等级任务
             let maxLv = 0
             user.equip_table.forEach(e => {
-                maxLv = Math.max(user.equips.find(i => i.cfgid == e.equip_id).lv, maxLv)
+                let eq = user.equips.find(i => i.cfgid == e.equip_id);
+                eq && (maxLv = Math.max(eq.lv, maxLv))
+
             })
             achieveTaskRecord(user, GameConfig.TaskType.EquipLvWeapon, maxLv);
             

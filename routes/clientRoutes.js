@@ -35,6 +35,9 @@ router.post('/user/userData', async (req, res) => {
 router.post('/battle/fuhuo', async (req, res) => {
   res.json(formatResponse({}));
 })
+router.post('/user/saveClientData', async (req, res) => {
+  res.json(formatResponse({}));
+})
 
 
 module.exports = router;

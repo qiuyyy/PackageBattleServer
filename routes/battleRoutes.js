@@ -87,6 +87,7 @@ router.post('/battle/sendMissResult', async (req, res) => {
                     // Power: user.Power, // 体力
                     ChapterMaxSurvivalTime: 0,
                     PowerRecoveryStarTime: 0, 
+                    battle_type: user.battleInfo.battle_type,
                 },
             }));
         } else if (user.battleInfo.battle_type == GameConfig.battleType.ELITE_MISSION){ // 精英关卡
@@ -111,6 +112,7 @@ router.post('/battle/sendMissResult', async (req, res) => {
                     Power: user.Power, // 体力
                     ChapterMaxSurvivalTime: 0,
                     PowerRecoveryStarTime: 0, 
+                    battle_type: user.battleInfo.battle_type,
                 },
                 missionChallengeInfo: user.api.missionChallengeInfo,
             }));
@@ -126,6 +128,7 @@ router.post('/battle/sendMissResult', async (req, res) => {
                 kv: {
                     Power: user.Power, // 体力
                     PowerRecoveryStarTime: 0, 
+                    battle_type: user.battleInfo.battle_type,
                 },
             }));
         }
