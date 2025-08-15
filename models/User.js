@@ -48,9 +48,9 @@ const battleInfoSchema = new mongoose.Schema({
 
 // 武器祈愿
 const cardluckySchema = new mongoose.Schema({
-  // 说明：当当前幸运值达到目标幸运值时，品质+1， 当前幸运值归0，目标幸运值+5
+  // 说明：当当前幸运值达到目标幸运值时，品质+1，目标幸运值10
   curLuckyNum: { type: Number, required: true, default: 0}, // 当前幸运值
-  totalLuckyNum: {type: Number, required: true, default: 5}, //目标幸运值
+  totalLuckyNum: {type: Number, required: true, default: 10}, //目标幸运值
   luckyQuality: {type: Number, required: true, default: 3}, // 当前品质
   lucky_rewards: { type: Array, default: [] }, //祈愿奖品列表
   draw_reward_idx: { type: Array, required: true, default: [] }, //已获得奖励

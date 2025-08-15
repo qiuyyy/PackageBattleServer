@@ -246,10 +246,9 @@ router.post('/cardlucky/start', async (req, res) => {
     // 幸运值增加
     user.cardlucky.curLuckyNum += 1;
     if (user.cardlucky.curLuckyNum > user.cardlucky.totalLuckyNum) {
-        // 幸运值达到目标值，下一次抽取，品质+1，幸运值归0，目标幸运值+5
+        // 幸运值达到目标值，下一次抽取，品质+1，目标幸运值+10
         user.cardlucky.luckyQuality += 1; 
-        user.cardlucky.curLuckyNum = 0;
-        user.cardlucky.totalLuckyNum += 5;
+        user.cardlucky.totalLuckyNum += 10;
     }
     // 在剩余选项中抽取结果
     let idx = Math.floor(Math.random() * (user.cardlucky.lucky_rewards.length - user.cardlucky.draw_reward_idx.length)); // 随机奖品
