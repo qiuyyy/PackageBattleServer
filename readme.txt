@@ -21,3 +21,6 @@ shell  mongosh
 
 开启pm2
 pm2 start npm --name "PackageBattleServer" -- start
+
+pm2 delete id
+pm2 restart id

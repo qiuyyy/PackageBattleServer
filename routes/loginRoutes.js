@@ -253,6 +253,10 @@ function updateWeeklyData(user) {
     weeklyRefreshTime: nextMondayTimestamp, // 下周一零点
     TaskWeeklyActiveDraw : ""
   }
+  // 每日挑战-周挑战
+  user.DailyChallenge.draw_daily_week_challenge = "";
+  user.DailyChallenge.total_num = 0;
+
   return user;
 }
 
