@@ -213,7 +213,7 @@ const neighborUserSchema = new mongoose.Schema({
   function_open: { type: Array, default: [] }, // 已功能开放
   Gear: { type: GearSchema, default:{} }, // 装备信息
   battleInfo: { type: battleInfoSchema, }, // 进行中战斗信息
-  cardlucky: { type: cardluckySchema, default: {curLuckyNum: 0, totalLuckyNum: 5, luckyQuality: 3, lucky_rewards: [], draw_reward_idx: [], rate: 0, refresh_time: 0}}, // 武器祈愿
+  cardlucky: { type: cardluckySchema, default: {curLuckyNum: 0, totalLuckyNum: 10, luckyQuality: 3, lucky_rewards: [], draw_reward_idx: [], rate: 0, refresh_time: 0}}, // 武器祈愿
   magicWeapon: { type: Array, default: [] }, // 已解锁神话武器
   TodayCounts: {type: TodayCountsSchema, default: {}}, // 今日次数
   toutiaoSideBarOnce: { type: Number, default: 0 }, // 抖音侧边栏是否已领取 0-未领取 1-已领取

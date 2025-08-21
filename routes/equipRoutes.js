@@ -219,7 +219,7 @@ router.post('/cardlucky/info', async (req, res) => {
             endRefreshTime: Math.floor(user.cardlucky.refresh_time / 1000),
             totalLuckyNum: user.cardlucky.totalLuckyNum,
             curLuckyNum: user.cardlucky.curLuckyNum,
-            luckyQuality: user.cardlucky.luckyQuality + 1, // 最高品质
+            luckyQuality: user.cardlucky.luckyQuality,
             costDiamond: [89, 269], //第二，三次抽取花费钻石
             costGold: 100,
             rateList: [1, 2, 3], // 奖励倍数选项

@@ -104,7 +104,7 @@ router.post('/user/useItem', async (req, res) => {
 // 保存已开放功能
 router.post('/user/functionopen', async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = req.user;
     if (!user) {
       return res.status(404).json(formatResponse({}, GameConfig.NetCode.FAIL, GameConfig.NetFailMsgCode.FAIL));
     }
