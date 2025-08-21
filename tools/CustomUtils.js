@@ -491,13 +491,17 @@ module.exports = {
 
     // 根据概率获取随机值 {key: prob}
     getRandomByProb(list) {
+        // 过滤掉概率为 0 的项
+        const filteredList = Object.fromEntries(
+            Object.entries(list).filter(([_, prob]) => prob > 0)
+        );
         const totalProb = Object.values(list).reduce((sum, prob) => sum + prob, 0); // 计算总概率 
         const randomNum = Math.floor(Math.random() * totalProb) + 1; // 生成随机数
         let cumulativeProb = 0; // 累积概率
         for (const [key, prob] of Object.entries(list)) { // 遍历概率列表
             cumulativeProb += prob; // 累积概率
             if (randomNum <= cumulativeProb) { // 判断是否命中
-                return key; // 返回对应的id
+                return key || Object.keys(list)[0]; // 返回对应的id
             }
         }
     },

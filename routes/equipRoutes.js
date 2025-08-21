@@ -143,7 +143,9 @@ router.post('/cardlucky/refresh', async (req, res) => {
     let rewards = [];
     // 可随机的品质概率列表
     let probList = {};
-    for (let index = GameConfig.weaponQuality.QUALITY_1; index <= user.cardlucky.luckyQuality; index++) {
+    let maxQuality = 4; // FIXME:最高武器品质
+
+    for (let index = GameConfig.weaponQuality.QUALITY_1; index <= Math.min(user.cardlucky.luckyQuality, maxQuality); index++) {
         probList[index] = GameConfig.luckyRewardQualityProb[index];
     }
     for (let i = 0; i < 3; i++) {
@@ -192,7 +194,8 @@ router.post('/cardlucky/info', async (req, res) => {
         rewards = [];
         // 可随机的品质概率列表
         let probList = {};
-        for (let index = GameConfig.weaponQuality.QUALITY_1; index <= user.cardlucky.luckyQuality; index++) {
+        let maxQuality = 4; // FIXME:最高武器品质
+        for (let index = GameConfig.weaponQuality.QUALITY_1; index <= Math.min(user.cardlucky.luckyQuality, maxQuality); index++) {
             probList[index] = GameConfig.luckyRewardQualityProb[index];
         }
         for (let i = 0; i < 3; i++) {
