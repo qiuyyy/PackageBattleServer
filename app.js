@@ -44,22 +44,31 @@ app.use(cors());
 // 解析json格式的表单数据
 // app.use(express.json())
 // 自定义 JSON 解析中间件
-app.use((req, res, next) => {
-    if (req.headers['content-type'] === 'application/json') {
-        express.json()(req, res, (err) => {
-            if (err) {
-                // 需要解码
-                const r = $DesMg.default.decode(err.body)
-                req.body = JSON.parse(r);
-            }
-            next();
-            console.log("=================", req.originalUrl)
-            console.log(req.body);
-        });
-    } else {
-        next();
-    }
-});
+app.use((req, res, next) => { 
+    if (req.headers['content-type'] === 'application/json') { 
+        express.json()(req, res, (err) => { 
+            if (err) { 
+                try { 
+                    // 需要解码 
+                    const r = $DesMg.default.decode(err.body) 
+                    req.body = JSON.parse(r); 
+                } catch (decodeErr) { 
+                    console.error('JSON 解码失败:', decodeErr); 
+                    return res.status(400).json({ error: 'Invalid JSON data' }); 
+                } 
+            } 
+            // 确保 req.body 存在 
+            req.body = req.body || {}; 
+            next(); 
+            console.log("=================", req.originalUrl) 
+            console.log(req.body); 
+        }); 
+    } else { 
+        // 确保非 JSON 请求也有 req.body 
+        req.body = req.body || {}; 
+        next(); 
+    } 
+}); 
 
 app.use(authenticateToken);
 

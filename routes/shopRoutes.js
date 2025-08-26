@@ -126,6 +126,10 @@ router.post("/gear/draw", async (req, res) => {
                 // 钥匙不足 使用货币
                 itemId = boxConfig.CurrencyID;
                 itemCount = boxConfig.Consume2;
+            } else {
+                itemId = boxConfig.Key;
+                itemCount = 10;
+
             }
             if (!checkItemIsEnough(user, [[itemId, -itemCount]])) {
                 // 货币不足
@@ -139,6 +143,10 @@ router.post("/gear/draw", async (req, res) => {
                 // 钥匙不足 使用货币
                 itemId = boxConfig.CurrencyID;
                 itemCount = boxConfig.Consume1;
+            } else {
+                itemId = boxConfig.Key;
+                itemCount = 1;
+
             }
             if (!checkItemIsEnough(user, [[itemId, -itemCount]])) {
                 // 货币不足

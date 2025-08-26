@@ -4,9 +4,6 @@ const { formatResponse ,achieveTaskRecord} = require('../tools/CustomUtils');
 const router = express.Router();
 const GameConfig = require("../tools/GameConfig");
 
-router.post('/client/configs', async (req, res) => {
-  res.json(formatResponse({}));
-})
 
 // 看广告
 router.post('/client/watchAd', async (req, res) => {
@@ -18,6 +15,9 @@ router.post('/client/watchAd', async (req, res) => {
 
 
 // ========================无用接口===========================
+router.post('/client/configs', async (req, res) => {
+  res.json(formatResponse({}));
+})
 router.post('/server/getServerList', async (req, res) => {
   res.json(formatResponse({user_servers: []}));
 })
