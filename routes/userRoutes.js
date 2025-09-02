@@ -194,7 +194,7 @@ router.post("/restaurant/info", async (req, res) => {
   const user = req.user;
   const now = new Date();
   const nowTime = Math.floor(now.getTime() / 1000); //当前时间戳
-  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); //今日凌晨的时间戳（毫秒）
+  let midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(); //今日凌晨的时间戳（毫秒）
   let todayTime = Math.floor((now.getTime() - midnight) / 1000); //从今日凌晨到现在
   let restConfig = getConfigData("Restaurant");
   if (!user.Restaurant || !user.Restaurant.NextTime) {

@@ -24,3 +24,4 @@ pm2 start npm --name "PackageBattleServer" -- start
 
 pm2 delete id
 pm2 restart id
+pm2 logs 3 --lines 500

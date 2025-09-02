@@ -16,30 +16,64 @@ const taskRoutes = require('./routes/taskRoutes');
 const GameConfig = require('./tools/GameConfig');
 const fs = require('fs');
 const https = require('https');
-const { loadWeaponConfig, loadCommonJsonConfig } = require('./tools/CustomUtils');
+const { loadWeaponConfig, loadCommonJsonConfig, formatResponse } = require('./tools/CustomUtils');
 
 // token验证中间件
 function authenticateToken(req, res, next) {
-    const token = req.body.token;
+    const token = req.headers.authorization?.split(' ')[1] || req.body.token;
     
     if (!token) return next();
     
-    jwt.verify(token, getSercetKey(), async (err, user) => {
-        if (err) return res.sendStatus(403);
-        // 获取用户信息
-        const info = await User.getUserByToken(token);
-        // console.log("find user:", info);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+    jwt.verify(token, getSercetKey(), async (err, decoded) => {
+        if (err) {
+            // 检查是否为token过期错误
+            if (err.name === 'TokenExpiredError') {
+                return res.json(formatResponse({}, 401, GameConfig.NetFailMsgCode.TokenExpires));
+            }
+            // 其他验证错误（无效签名、格式错误等）
+            return res.json(formatResponse({}, 403, GameConfig.NetFailMsgCode.TokenError));
         }
-        req.user = info;
-        next();
+
+        // 检查token是否即将过期（剩余时间小于30分钟）
+        const currentTime = Date.now() / 1000; // 当前时间（秒）
+        const expiresIn = decoded.exp; // token过期时间（秒）
+        const timeLeft = expiresIn - currentTime;
+        const threshold = 30 * 60; // 30分钟阈值（秒）
+        // 如果即将过期，生成新token
+        if (timeLeft > 0 && timeLeft < threshold) {
+            const newToken = jwt.sign(
+                { openid: decoded.openid },
+                getSercetKey(),
+                { expiresIn: '3h' } // 新token有效期3小时
+            );
+            // 在响应头中返回新token
+            res.setHeader('X-Refresh-Token', newToken);
+        }
+
+        try { // ✅ 添加错误捕获
+            // 获取用户信息
+            const info = await User.getUserByToken(token);
+            // console.log("find user:", info);
+            if (!info) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            req.user = info;
+            next();
+        } catch (error) {
+            console.error('Token verification failed:', error);
+            return res.json(formatResponse({}, 403, GameConfig.NetFailMsgCode.TokenError));
+        }
     });
 }
 
 // 解决跨域问题
 const cors = require('cors');
-app.use(cors());
+app.use(cors({
+    exposedHeaders: ['X-Refresh-Token'], // 暴露自定义响应头
+    origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : '*', // 生产环境限制源
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // 解析json格式的表单数据
 // app.use(express.json())

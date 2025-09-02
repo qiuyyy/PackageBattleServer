@@ -21,7 +21,8 @@ module.exports = {
         FAIL: "FAIL", // 失败
         CODE_IS_ERROR: "CODE_IS_ERROR", // 验证码错误
         COUNT_NOT_ENOUGH: "COUNT_NOT_ENOUGH", // 次数不足
-
+        TokenExpires: "TokenExpires", // token过期
+        TokenError: "TokenError", // token错误
     },
 
     /**=========================物品相关 */ 

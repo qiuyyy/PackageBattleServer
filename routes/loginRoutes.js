@@ -59,7 +59,7 @@ async function handleUserLogin(openid, res, isNew) {
   const token = jwt.sign(
     { openid: user.openid }, 
     getSercetKey(),
-    { expiresIn: '3h' } // token有效期1小时
+    { expiresIn: '3h' } // token有效期3小时
   );
 
   // 返回数据给客户端
